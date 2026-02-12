@@ -6,6 +6,44 @@ let chartInstance = null
 
 const generateReportBtn = document.querySelector('.generate-report-btn')
 
+// Toast notification system
+function showToast(message, type = 'info', title = '', duration = 5000) {
+    const container = document.getElementById('toast-container')
+    const toast = document.createElement('div')
+    toast.className = `toast ${type}`
+    
+    const icons = {
+        error: '❌',
+        warning: '⚠️',
+        success: '✅',
+        info: 'ℹ️'
+    }
+    
+    const titles = {
+        error: title || 'Error',
+        warning: title || 'Warning',
+        success: title || 'Success',
+        info: title || 'Info'
+    }
+    
+    toast.innerHTML = `
+        <span class="toast-icon">${icons[type]}</span>
+        <div class="toast-content">
+            <div class="toast-title">${titles[type]}</div>
+            <div class="toast-message">${message}</div>
+        </div>
+        <button class="toast-close" onclick="this.parentElement.remove()">×</button>
+    `
+    
+    container.appendChild(toast)
+    
+    // Auto remove after duration
+    setTimeout(() => {
+        toast.style.animation = 'slideOut 0.3s ease'
+        setTimeout(() => toast.remove(), 300)
+    }, duration)
+}
+
 generateReportBtn.addEventListener('click', fetchStockData)
 
 document.getElementById('ticker-input-form').addEventListener('submit', (e) => {
@@ -155,7 +193,12 @@ async function fetchStockData() {
             })
             renderTickers()
             
-            alert(`❌ No data found for: ${failedTickers.join(', ')}\n\nPossible reasons:\n• Ticker doesn't exist or is misspelled\n• Not a US stock\n• No recent trading data available\n\nPlease verify the ticker symbols and try again.`)
+            showToast(
+                `No data found for: ${failedTickers.join(', ')}\n\nPossible reasons:\n• Ticker doesn't exist or is misspelled\n• Not a US stock\n• No recent trading data available\n\nPlease verify the ticker symbols and try again.`,
+                'error',
+                'Invalid Tickers',
+                8000
+            )
             return
         }
 
@@ -166,7 +209,12 @@ async function fetchStockData() {
                 if (index > -1) tickersArr.splice(index, 1)
             })
             
-            alert(`⚠️ Warning: Could not fetch data for ${failedTickers.join(', ')}\n\nThese tickers were removed. Continuing with: ${validStockData.map(s => s.ticker).join(', ')}\n\nTip: Double-check ticker spelling (e.g., GOOGL not GOGLE)`)
+            showToast(
+                `Could not fetch data for: ${failedTickers.join(', ')}\n\nThese tickers were removed. Continuing with: ${validStockData.map(s => s.ticker).join(', ')}\n\nTip: Double-check ticker spelling (e.g., GOOGL not GOGLE)`,
+                'warning',
+                'Some Tickers Failed',
+                7000
+            )
         }
 
         stockDataGlobal = validStockData
@@ -183,7 +231,7 @@ async function fetchStockData() {
     } catch (err) {
         loadingArea.style.display = 'none'
         document.querySelector('.action-panel').style.display = 'block'
-        alert('❌ Error fetching stock data. Please try again.')
+        showToast('Error fetching stock data. Please try again.', 'error', 'Fetch Error')
         console.error('Fetch stock data error:', err)
     }
 }
