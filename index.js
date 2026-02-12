@@ -408,6 +408,7 @@ function renderReport(output) {
     })
 
     // Set card border based on dominant verdict
+    const text = output.toLowerCase()
     card.classList.remove('buy', 'hold', 'sell')
     if (text.includes('buy')) {
         card.classList.add('buy')
