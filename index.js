@@ -554,3 +554,20 @@ if (helpBtn && helpPopup && helpClose) {
         }
     })
 }
+
+document.querySelectorAll('.clickable-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+        const ticker = chip.getAttribute('data-ticker')
+        
+        if (tickersArr.length >= 3) {
+            showToast('Maximum 3 tickers allowed. Clear some tickers to add more.', 'warning', 'Limit Reached', 3000)
+            return
+        }
+        
+        if (ticker && !tickersArr.includes(ticker)) {
+            tickersArr.push(ticker)
+            generateReportBtn.disabled = false
+            renderTickers()
+        }
+    })
+})

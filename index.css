@@ -214,6 +214,10 @@ body {
   cursor: help;
 }
 
+.chip.clickable-chip {
+  cursor: pointer;
+}
+
 .chip:hover {
   background: rgba(16, 185, 129, 0.2);
   transform: translateY(-2px);
