@@ -228,31 +228,49 @@ function renderReport(output) {
         card.appendChild(p)
     })
 
-    // ---- Trading signal stripe (single dominant verdict) ----
-    card.classList.remove('buy', 'hold', 'sell')
+    // Extract individual stock verdicts
+    const verdictBadgesContainer = document.getElementById('verdict-badges')
+    verdictBadgesContainer.innerHTML = ''
 
     const text = output.toLowerCase()
 
-    // Priority: BUY > SELL > HOLD
-    if (text.includes('time to buy') || text.includes('buy now') || text.includes('this stock is on fire')) {
-        card.classList.add('buy')
-    } else if (text.includes('sell') || text.includes('dump') || text.includes('take profits')) {
-        card.classList.add('sell')
-    } else if (text.includes('hold')) {
-        card.classList.add('hold')
-    }
-    const badge = document.getElementById('verdict-badge')
-    badge.className = 'verdict-badge'
+    // Parse recommendations for each stock
+    stockDataGlobal.forEach(stock => {
+        const ticker = stock.ticker
+        const badge = document.createElement('span')
+        badge.className = 'verdict-badge'
+        
+        // Find ticker mention and nearby verdict
+        const tickerPattern = new RegExp(`${ticker}[\\s\\S]{0,200}(buy|sell|hold)`, 'i')
+        const match = text.match(tickerPattern)
+        
+        let verdict = 'HOLD' // default
+        let verdictClass = 'hold'
+        
+        if (match) {
+            const foundVerdict = match[1].toLowerCase()
+            if (foundVerdict === 'buy') {
+                verdict = 'BUY'
+                verdictClass = 'buy'
+            } else if (foundVerdict === 'sell') {
+                verdict = 'SELL'
+                verdictClass = 'sell'
+            }
+        }
+        
+        badge.textContent = `${ticker}: ${verdict}`
+        badge.classList.add(verdictClass)
+        verdictBadgesContainer.appendChild(badge)
+    })
 
-    if (card.classList.contains('buy')) {
-        badge.textContent = 'BUY'
-        badge.classList.add('buy')
-    } else if (card.classList.contains('sell')) {
-        badge.textContent = 'SELL'
-        badge.classList.add('sell')
+    // Set card border based on dominant verdict
+    card.classList.remove('buy', 'hold', 'sell')
+    if (text.includes('buy')) {
+        card.classList.add('buy')
+    } else if (text.includes('sell')) {
+        card.classList.add('sell')
     } else {
-        badge.textContent = 'HOLD'
-        badge.classList.add('hold')
+        card.classList.add('hold')
     }
 
     // Render chart
