@@ -108,7 +108,10 @@ const top100Stocks = [
 // Render stocks
 function renderStocks(stocks) {
     const grid = document.getElementById('stocks-grid');
+    const resultsCount = document.getElementById('results-count');
     grid.innerHTML = '';
+    
+    resultsCount.textContent = `Showing ${stocks.length} stock${stocks.length !== 1 ? 's' : ''}`;
     
     if (stocks.length === 0) {
         grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #94a3b8; padding: 40px;">No stocks found matching your criteria.</p>';

@@ -54,7 +54,14 @@
 .hero-subtitle {
   font-size: 1.1rem;
   color: #94a3b8;
-  margin: 0 0 32px;
+  margin: 0 0 24px;
+}
+
+.results-count {
+  margin: 0 0 16px 0;
+  font-size: 0.9rem;
+  color: #10b981;
+  font-weight: 600;
 }
 
 /* =========================
