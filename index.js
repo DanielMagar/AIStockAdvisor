@@ -46,6 +46,17 @@ function showToast(message, type = 'info', title = '', duration = 5000) {
 
 generateReportBtn.addEventListener('click', fetchStockData)
 
+// Check for ticker parameter in URL
+window.addEventListener('DOMContentLoaded', () => {
+    const urlParams = new URLSearchParams(window.location.search)
+    const ticker = urlParams.get('ticker')
+    if (ticker && ticker.trim().length > 0) {
+        document.getElementById('ticker-input').value = ticker
+        document.getElementById('ticker-input-form').dispatchEvent(new Event('submit'))
+        showToast(`Added ${ticker} from Browse Stocks`, 'success', 'Ticker Added', 3000)
+    }
+})
+
 document.getElementById('ticker-input-form').addEventListener('submit', (e) => {
     e.preventDefault()
     const tickerInput = document.getElementById('ticker-input')
@@ -103,12 +114,17 @@ document.getElementById('ticker-input-form').addEventListener('submit', (e) => {
 })
 function renderTickers() {
     const tickersDiv = document.querySelector('.ticker-choice-display')
+    const clearBtn = document.getElementById('clear-tickers-btn')
     tickersDiv.innerHTML = ''
 
     if (tickersArr.length === 0) {
         tickersDiv.textContent = 'Your tickers will appear here…'
+        clearBtn.style.display = 'none'
         return
     }
+
+    // Show clear button when tickers exist
+    clearBtn.style.display = 'block'
 
     tickersArr.forEach((ticker, index) => {
         const span = document.createElement('span')
@@ -121,6 +137,19 @@ function renderTickers() {
         }
     })
 }
+
+// Clear tickers button handler
+document.getElementById('clear-tickers-btn').addEventListener('click', () => {
+    tickersArr.length = 0
+    renderTickers()
+    generateReportBtn.disabled = true
+    
+    const label = document.querySelector('.ticker-label')
+    label.style.color = '#94a3b8'
+    label.textContent = 'Selected Tickers:'
+    
+    showToast('All tickers cleared', 'info', 'Cleared', 2000)
+})
 
 
 
@@ -291,8 +320,17 @@ Style:
 
     } catch (err) {
         console.error('AI API Error:', err.message)
-        // Show chart anyway with error message
-        renderReport('Unable to generate AI report at this time. Please check your API configuration and try again.\n\nError: ' + err.message)
+        // Don't show chart or report, just error message
+        loadingArea.style.display = 'none'
+        document.querySelector('.action-panel').style.display = 'block'
+        
+        // Show error toast
+        showToast(
+            'Our AI service is temporarily unavailable. Please try again in a few moments.\n\nIf the issue persists, please check your API configuration.',
+            'error',
+            'Service Unavailable',
+            8000
+        )
     }
 }
 
@@ -365,36 +403,88 @@ function renderReport(output) {
         
         const section = text.substring(tickerIndex, Math.min(nextTickerIndex, tickerIndex + 500))
         
-        // Find all occurrences of buy/sell/hold in this section
-        const buyMatches = [...section.matchAll(/\bbuy\b/g)]
-        const sellMatches = [...section.matchAll(/\bsell\b/g)]
-        const holdMatches = [...section.matchAll(/\bhold\b/g)]
+        // Look for explicit recommendation phrases (more reliable)
+        const explicitBuyPatterns = [
+            /\bgo ahead and buy\b/,
+            /\bbuy now\b/,
+            /\btime to buy\b/,
+            /\brecommend.*buy\b/,
+            /\bverdict.*buy\b/,
+            /\badvice.*buy\b/,
+            /\bshould buy\b/,
+            /\bmust buy\b/
+        ]
         
-        // Get the LAST occurrence (closest to end = final verdict)
-        let lastVerdict = { type: 'hold', index: -1 }
+        const explicitSellPatterns = [
+            /\bgo ahead and sell\b/,
+            /\bsell now\b/,
+            /\btime to sell\b/,
+            /\brecommend.*sell\b/,
+            /\bverdict.*sell\b/,
+            /\badvice.*sell\b/,
+            /\bshould sell\b/,
+            /\bmust sell\b/
+        ]
         
-        if (buyMatches.length > 0) {
-            const lastBuy = buyMatches[buyMatches.length - 1]
-            if (lastBuy.index > lastVerdict.index) {
-                lastVerdict = { type: 'buy', index: lastBuy.index }
+        const explicitHoldPatterns = [
+            /\bgo ahead and hold\b/,
+            /\bhold now\b/,
+            /\btime to hold\b/,
+            /\brecommend.*hold\b/,
+            /\bverdict.*hold\b/,
+            /\badvice.*hold\b/,
+            /\bshould hold\b/,
+            /\bmust hold\b/,
+            /\bhold for now\b/,
+            /\bhold tight\b/
+        ]
+        
+        let verdict = 'HOLD' // default
+        let verdictClass = 'hold'
+        
+        // Check explicit patterns first (highest priority)
+        if (explicitBuyPatterns.some(pattern => pattern.test(section))) {
+            verdict = 'BUY'
+            verdictClass = 'buy'
+        } else if (explicitSellPatterns.some(pattern => pattern.test(section))) {
+            verdict = 'SELL'
+            verdictClass = 'sell'
+        } else if (explicitHoldPatterns.some(pattern => pattern.test(section))) {
+            verdict = 'HOLD'
+            verdictClass = 'hold'
+        } else {
+            // Fallback: Find all occurrences and take the LAST one
+            const buyMatches = [...section.matchAll(/\bbuy\b/g)]
+            const sellMatches = [...section.matchAll(/\bsell\b/g)]
+            const holdMatches = [...section.matchAll(/\bhold\b/g)]
+            
+            let lastVerdict = { type: 'hold', index: -1 }
+            
+            if (buyMatches.length > 0) {
+                const lastBuy = buyMatches[buyMatches.length - 1]
+                if (lastBuy.index > lastVerdict.index) {
+                    lastVerdict = { type: 'buy', index: lastBuy.index }
+                }
             }
-        }
-        if (sellMatches.length > 0) {
-            const lastSell = sellMatches[sellMatches.length - 1]
-            if (lastSell.index > lastVerdict.index) {
-                lastVerdict = { type: 'sell', index: lastSell.index }
+            if (sellMatches.length > 0) {
+                const lastSell = sellMatches[sellMatches.length - 1]
+                if (lastSell.index > lastVerdict.index) {
+                    lastVerdict = { type: 'sell', index: lastSell.index }
+                }
             }
-        }
-        if (holdMatches.length > 0) {
-            const lastHold = holdMatches[holdMatches.length - 1]
-            if (lastHold.index > lastVerdict.index) {
-                lastVerdict = { type: 'hold', index: lastHold.index }
+            if (holdMatches.length > 0) {
+                const lastHold = holdMatches[holdMatches.length - 1]
+                if (lastHold.index > lastVerdict.index) {
+                    lastVerdict = { type: 'hold', index: lastHold.index }
+                }
             }
+            
+            verdict = lastVerdict.type.toUpperCase()
+            verdictClass = lastVerdict.type
         }
         
-        const verdict = lastVerdict.type.toUpperCase()
         badge.textContent = `${ticker}: ${verdict}`
-        badge.classList.add(lastVerdict.type)
+        badge.classList.add(verdictClass)
         verdictBadgesContainer.appendChild(badge)
     })
 

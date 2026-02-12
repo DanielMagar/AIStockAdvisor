@@ -36,6 +36,10 @@
 					<span class="subtitle">🇺🇸 US Market Predictions</span>
 				</div>
 			</div>
+			<nav class="nav-links">
+				<a href="index.html" class="active">Home</a>
+				<a href="stocks.html">Browse Stocks</a>
+			</nav>
 		</div>
 	</header>
 
@@ -92,7 +96,10 @@
 
 			<!-- JS expects this exact class -->
 			<div class="ticker-display-wrapper">
-				<label class="ticker-label">Selected Tickers:</label>
+				<div class="ticker-header">
+					<label class="ticker-label">Selected Tickers:</label>
+					<button class="clear-tickers-btn" id="clear-tickers-btn" style="display: none;">✕ Clear All</button>
+				</div>
 				<p class="ticker-choice-display">
 					Your tickers will appear here…
 				</p>

@@ -29,6 +29,35 @@ body {
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px 30px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.nav-links {
+  display: flex;
+  gap: 24px;
+  margin-left: auto;
+}
+
+.nav-links a {
+  color: #94a3b8;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.95rem;
+  padding: 8px 16px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.nav-links a:hover {
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.1);
+}
+
+.nav-links a.active {
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.15);
 }
 
 .logo {
@@ -261,12 +290,36 @@ body {
   margin-top: 24px;
 }
 
+.ticker-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
 .ticker-label {
-  display: block;
   font-weight: 600;
   font-size: 0.875rem;
   color: #94a3b8;
-  margin-bottom: 8px;
+  margin: 0;
+}
+
+.clear-tickers-btn {
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  font-weight: 600;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.clear-tickers-btn:hover {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: #ef4444;
+  transform: scale(1.05);
 }
 
 .ticker-choice-display {
