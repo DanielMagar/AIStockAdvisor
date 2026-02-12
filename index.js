@@ -361,126 +361,45 @@ function renderReport(output) {
     // Split into paragraphs
     const paragraphs = output.split(/\n\n+/)
 
+    const highlightedParagraphs = []
+    
     paragraphs.forEach((para) => {
         const p = document.createElement('p')
-        
-        // Highlight Buy, Sell, Hold keywords with colors
         let highlightedText = para.trim()
-        highlightedText = highlightedText.replace(/\b(Buy|BUY)\b/g, '<span class="highlight-buy">$1</span>')
-        highlightedText = highlightedText.replace(/\b(Sell|SELL)\b/g, '<span class="highlight-sell">$1</span>')
-        highlightedText = highlightedText.replace(/\b(Hold|HOLD)\b/g, '<span class="highlight-hold">$1</span>')
+        
+        highlightedText = highlightedText.replace(/\b(Buy|BUY)(?![a-z])/g, '<span class="highlight-buy">$1</span>')
+        highlightedText = highlightedText.replace(/\b(Sell|SELL)(?![a-z])/g, '<span class="highlight-sell">$1</span>')
+        highlightedText = highlightedText.replace(/\b(Hold|HOLD)(?!\s+(onto|your|tight|on|up|out|off|for))/g, '<span class="highlight-hold">$1</span>')
         
         p.innerHTML = highlightedText
         card.appendChild(p)
+        highlightedParagraphs.push(highlightedText)
     })
 
-    // Extract individual stock verdicts
     const verdictBadgesContainer = document.getElementById('verdict-badges')
     verdictBadgesContainer.innerHTML = ''
 
-    const text = output.toLowerCase()
-
-    // Split text into sections by stock ticker to analyze each separately
     stockDataGlobal.forEach(stock => {
         const ticker = stock.ticker
         const badge = document.createElement('span')
         badge.className = 'verdict-badge'
         
-        // Find the section of text about this ticker
-        const tickerIndex = text.indexOf(ticker.toLowerCase())
-        if (tickerIndex === -1) {
-            badge.textContent = `${ticker}: HOLD`
-            badge.classList.add('hold')
-            verdictBadgesContainer.appendChild(badge)
-            return
-        }
+        const tickerPara = highlightedParagraphs.find(p => p.toLowerCase().includes(ticker.toLowerCase()))
         
-        // Get text from ticker mention to next ticker or end (max 500 chars)
-        const nextTickerIndex = stockDataGlobal
-            .map(s => text.indexOf(s.ticker.toLowerCase(), tickerIndex + 1))
-            .filter(i => i > tickerIndex)
-            .sort((a, b) => a - b)[0] || text.length
-        
-        const section = text.substring(tickerIndex, Math.min(nextTickerIndex, tickerIndex + 500))
-        
-        // Look for explicit recommendation phrases (more reliable)
-        const explicitBuyPatterns = [
-            /\bgo ahead and buy\b/,
-            /\bbuy now\b/,
-            /\btime to buy\b/,
-            /\brecommend.*buy\b/,
-            /\bverdict.*buy\b/,
-            /\badvice.*buy\b/,
-            /\bshould buy\b/,
-            /\bmust buy\b/
-        ]
-        
-        const explicitSellPatterns = [
-            /\bgo ahead and sell\b/,
-            /\bsell now\b/,
-            /\btime to sell\b/,
-            /\brecommend.*sell\b/,
-            /\bverdict.*sell\b/,
-            /\badvice.*sell\b/,
-            /\bshould sell\b/,
-            /\bmust sell\b/
-        ]
-        
-        const explicitHoldPatterns = [
-            /\bgo ahead and hold\b/,
-            /\bhold now\b/,
-            /\btime to hold\b/,
-            /\brecommend.*hold\b/,
-            /\bverdict.*hold\b/,
-            /\badvice.*hold\b/,
-            /\bshould hold\b/,
-            /\bmust hold\b/,
-            /\bhold for now\b/,
-            /\bhold tight\b/
-        ]
-        
-        let verdict = 'HOLD' // default
+        let verdict = 'HOLD'
         let verdictClass = 'hold'
         
-        // Check explicit patterns first (highest priority)
-        if (explicitBuyPatterns.some(pattern => pattern.test(section))) {
-            verdict = 'BUY'
-            verdictClass = 'buy'
-        } else if (explicitSellPatterns.some(pattern => pattern.test(section))) {
-            verdict = 'SELL'
-            verdictClass = 'sell'
-        } else if (explicitHoldPatterns.some(pattern => pattern.test(section))) {
-            verdict = 'HOLD'
-            verdictClass = 'hold'
-        } else {
-            // Fallback: Find all occurrences and take the LAST one
-            const buyMatches = [...section.matchAll(/\bbuy\b/g)]
-            const sellMatches = [...section.matchAll(/\bsell\b/g)]
-            const holdMatches = [...section.matchAll(/\bhold\b/g)]
-            
-            let lastVerdict = { type: 'hold', index: -1 }
-            
-            if (buyMatches.length > 0) {
-                const lastBuy = buyMatches[buyMatches.length - 1]
-                if (lastBuy.index > lastVerdict.index) {
-                    lastVerdict = { type: 'buy', index: lastBuy.index }
-                }
+        if (tickerPara) {
+            if (tickerPara.includes('highlight-buy')) {
+                verdict = 'BUY'
+                verdictClass = 'buy'
+            } else if (tickerPara.includes('highlight-sell')) {
+                verdict = 'SELL'
+                verdictClass = 'sell'
+            } else if (tickerPara.includes('highlight-hold')) {
+                verdict = 'HOLD'
+                verdictClass = 'hold'
             }
-            if (sellMatches.length > 0) {
-                const lastSell = sellMatches[sellMatches.length - 1]
-                if (lastSell.index > lastVerdict.index) {
-                    lastVerdict = { type: 'sell', index: lastSell.index }
-                }
-            }
-            if (holdMatches.length > 0) {
-                const lastHold = holdMatches[holdMatches.length - 1]
-                if (lastHold.index > lastVerdict.index) {
-                    lastVerdict = { type: 'hold', index: lastHold.index }
-                }
-            }
-            
-            verdict = lastVerdict.type.toUpperCase()
-            verdictClass = lastVerdict.type
         }
         
         badge.textContent = `${ticker}: ${verdict}`
