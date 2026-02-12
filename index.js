@@ -368,43 +368,56 @@ function renderReport(output) {
         
         highlightedText = highlightedText.replace(/\b(Buy|BUY)(?![a-z])/g, '<span class="highlight-buy">$1</span>')
         highlightedText = highlightedText.replace(/\b(Sell|SELL)(?![a-z])/g, '<span class="highlight-sell">$1</span>')
-        highlightedText = highlightedText.replace(/\b(Hold|HOLD)(?!\s+(onto|your|tight|on|up|out|off|for))/g, '<span class="highlight-hold">$1</span>')
+        highlightedText = highlightedText.replace(/\b(Hold|HOLD)\b/g, '<span class="highlight-hold">$1</span>')
         
         p.innerHTML = highlightedText
         card.appendChild(p)
         highlightedParagraphs.push(highlightedText)
     })
 
-    const verdictBadgesContainer = document.getElementById('verdict-badges')
-    verdictBadgesContainer.innerHTML = ''
+    // const verdictBadgesContainer = document.getElementById('verdict-badges')
+    // verdictBadgesContainer.innerHTML = ''
 
-    stockDataGlobal.forEach(stock => {
-        const ticker = stock.ticker
-        const badge = document.createElement('span')
-        badge.className = 'verdict-badge'
+    // stockDataGlobal.forEach(stock => {
+    //     const ticker = stock.ticker
+    //     const badge = document.createElement('span')
+    //     badge.className = 'verdict-badge'
         
-        const tickerPara = highlightedParagraphs.find(p => p.toLowerCase().includes(ticker.toLowerCase()))
+    //     let verdict = 'HOLD'
+    //     let verdictClass = 'hold'
         
-        let verdict = 'HOLD'
-        let verdictClass = 'hold'
+    //     const fullText = output.toLowerCase()
+    //     const tickerIndex = fullText.indexOf(ticker.toLowerCase())
         
-        if (tickerPara) {
-            if (tickerPara.includes('highlight-buy')) {
-                verdict = 'BUY'
-                verdictClass = 'buy'
-            } else if (tickerPara.includes('highlight-sell')) {
-                verdict = 'SELL'
-                verdictClass = 'sell'
-            } else if (tickerPara.includes('highlight-hold')) {
-                verdict = 'HOLD'
-                verdictClass = 'hold'
-            }
-        }
+    //     if (tickerIndex !== -1) {
+    //         const nextTickerIndex = stockDataGlobal
+    //             .map(s => fullText.indexOf(s.ticker.toLowerCase(), tickerIndex + 1))
+    //             .filter(i => i > tickerIndex)
+    //             .sort((a, b) => a - b)[0] || fullText.length
+            
+    //         const section = fullText.substring(tickerIndex, nextTickerIndex)
+    //         const recMatch = section.match(/recommend(ation)?[?:]?\s*([^!.]+)/)
+            
+    //         if (recMatch) {
+    //             const recText = recMatch[2]
+                
+    //             if (/\bsell\b/.test(recText)) {
+    //                 verdict = 'SELL'
+    //                 verdictClass = 'sell'
+    //             } else if (/\bbuy\b/.test(recText)) {
+    //                 verdict = 'BUY'
+    //                 verdictClass = 'buy'
+    //             } else if (/\bhold\b/.test(recText)) {
+    //                 verdict = 'HOLD'
+    //                 verdictClass = 'hold'
+    //             }
+    //         }
+    //     }
         
-        badge.textContent = `${ticker}: ${verdict}`
-        badge.classList.add(verdictClass)
-        verdictBadgesContainer.appendChild(badge)
-    })
+    //     badge.textContent = `${ticker}: ${verdict}`
+    //     badge.classList.add(verdictClass)
+    //     verdictBadgesContainer.appendChild(badge)
+    // })
 
     // Set card border based on dominant verdict
     const text = output.toLowerCase()
