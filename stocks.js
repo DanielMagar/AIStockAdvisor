@@ -129,9 +129,15 @@ function renderStocks(stocks) {
             <div class="stock-description">${stock.description}</div>
             <div class="stock-footer">
                 <div class="stock-market">${stock.market}</div>
-                <button class="analyze-btn" onclick="analyzeStock('${stock.ticker}')">Analyze →</button>
+                <button class="analyze-btn" data-ticker="${stock.ticker}">Analyze →</button>
             </div>
         `;
+        
+        // Add event listener to analyze button
+        const analyzeBtn = card.querySelector('.analyze-btn');
+        analyzeBtn.addEventListener('click', () => {
+            analyzeStock(stock.ticker);
+        });
         
         grid.appendChild(card);
     });
