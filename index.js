@@ -224,7 +224,14 @@ function renderReport(output) {
 
     paragraphs.forEach((para) => {
         const p = document.createElement('p')
-        p.textContent = para.trim()
+        
+        // Highlight Buy, Sell, Hold keywords with colors
+        let highlightedText = para.trim()
+        highlightedText = highlightedText.replace(/\b(Buy|BUY)\b/g, '<span class="highlight-buy">$1</span>')
+        highlightedText = highlightedText.replace(/\b(Sell|SELL)\b/g, '<span class="highlight-sell">$1</span>')
+        highlightedText = highlightedText.replace(/\b(Hold|HOLD)\b/g, '<span class="highlight-hold">$1</span>')
+        
+        p.innerHTML = highlightedText
         card.appendChild(p)
     })
 
