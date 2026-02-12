@@ -120,10 +120,10 @@ function renderTickers() {
     if (tickersArr.length === 0) {
         tickersDiv.textContent = 'Your tickers will appear here…'
         clearBtn.style.display = 'none'
+        generateReportBtn.disabled = true
         return
     }
 
-    // Show clear button when tickers exist
     clearBtn.style.display = 'block'
 
     tickersArr.forEach((ticker, index) => {
@@ -131,7 +131,6 @@ function renderTickers() {
         span.textContent = ticker
         tickersDiv.appendChild(span)
 
-        // Add comma + space except after last item
         if (index < tickersArr.length - 1) {
             tickersDiv.appendChild(document.createTextNode(', '))
         }
@@ -500,7 +499,6 @@ const newReportBtn = document.querySelector('.new-report-btn')
 
 if (newReportBtn) {
     newReportBtn.addEventListener('click', () => {
-        // Reset state
         tickersArr.length = 0
         stockDataGlobal = []
         
@@ -509,14 +507,37 @@ if (newReportBtn) {
             chartInstance = null
         }
 
-        // Reset UI
-        document.querySelector('.ticker-choice-display').textContent =
-            'Your tickers will appear here…'
-
+        document.querySelector('.ticker-choice-display').textContent = 'Your tickers will appear here…'
         document.getElementById('ticker-input').value = ''
         document.querySelector('.generate-report-btn').disabled = true
-
         document.querySelector('.output-panel').style.display = 'none'
         document.querySelector('.action-panel').style.display = 'block'
+        document.getElementById('clear-tickers-btn').style.display = 'none'
+        
+        const label = document.querySelector('.ticker-label')
+        label.style.color = '#94a3b8'
+        label.textContent = 'Selected Tickers:'
+        
+        window.history.replaceState({}, '', '/')
+    })
+}
+
+const helpBtn = document.getElementById('help-btn')
+const helpPopup = document.getElementById('help-popup')
+const helpClose = document.getElementById('help-close')
+
+if (helpBtn && helpPopup && helpClose) {
+    helpBtn.addEventListener('click', () => {
+        helpPopup.style.display = 'flex'
+    })
+    
+    helpClose.addEventListener('click', () => {
+        helpPopup.style.display = 'none'
+    })
+    
+    helpPopup.addEventListener('click', (e) => {
+        if (e.target === helpPopup) {
+            helpPopup.style.display = 'none'
+        }
     })
 }

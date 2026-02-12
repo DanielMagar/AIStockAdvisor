@@ -48,42 +48,44 @@
 		<!-- ACTION PANEL (JS depends on this class) -->
 		<section class="card action-panel">
 			<div class="panel-header">
-				<h1>📊 Analyze US Stocks</h1>
-				<p class="muted">
-					Enter up to 3 US stock tickers to generate AI-powered market insights
-				</p>
+				<div style="display: flex; justify-content: space-between; align-items: center;">
+					<div>
+						<h1>📊 Analyze US Stocks</h1>
+						<p class="muted">
+							Enter up to 3 US stock tickers to generate AI-powered market insights
+						</p>
+					</div>
+					<button class="help-btn" id="help-btn" title="What is a stock ticker?">❓</button>
+				</div>
 			</div>
 
-			<div class="guide-section">
-				<div class="guide-header">
-					<span class="guide-icon">💡</span>
-					<h3>New to Stock Tickers?</h3>
+			<div class="help-popup" id="help-popup" style="display: none;">
+				<div class="help-content">
+					<button class="help-close" id="help-close">×</button>
+					<h3>💡 New to Stock Tickers?</h3>
+					<p>A stock ticker is a unique code (usually 1-5 letters) that identifies a publicly traded company. For example, <strong>AAPL</strong> represents Apple Inc. Simply type the ticker symbol below and click "Add Ticker".</p>
 				</div>
-				<p class="guide-text">
-					A stock ticker is a unique code (usually 1-5 letters) that identifies a publicly traded company. 
-					For example, <strong>AAPL</strong> represents Apple Inc. Simply type the ticker symbol below and click "Add Ticker".
-				</p>
 			</div>
 
 			<div class="stock-examples">
-				<span class="example-label">🎯 Popular US Stocks (Click to learn more):</span>
+				<span class="example-label">🎯 Popular US Stocks:</span>
 				<div class="stock-chips">
-					<span class="chip" title="Apple Inc. - Technology">AAPL - Apple</span>
-					<span class="chip" title="Microsoft Corporation - Technology">MSFT - Microsoft</span>
-					<span class="chip" title="Alphabet Inc. - Technology">GOOGL - Google</span>
-					<span class="chip" title="Tesla Inc. - Automotive/Energy">TSLA - Tesla</span>
-					<span class="chip" title="Amazon.com Inc. - E-commerce">AMZN - Amazon</span>
-					<span class="chip" title="NVIDIA Corporation - Semiconductors">NVDA - NVIDIA</span>
-					<span class="chip" title="Meta Platforms Inc. - Social Media">META - Meta</span>
-					<span class="chip" title="Netflix Inc. - Streaming">NFLX - Netflix</span>
-					<span class="chip" title="JPMorgan Chase & Co. - Banking">JPM - JPMorgan</span>
-					<span class="chip" title="Johnson & Johnson - Healthcare">JNJ - J&J</span>
-					<span class="chip" title="Visa Inc. - Financial Services">V - Visa</span>
-					<span class="chip" title="Walmart Inc. - Retail">WMT - Walmart</span>
-					<span class="chip" title="Coca-Cola Company - Beverages">KO - Coca-Cola</span>
-					<span class="chip" title="Nike Inc. - Apparel">NKE - Nike</span>
-					<span class="chip" title="Disney - Entertainment">DIS - Disney</span>
-					<span class="chip" title="McDonald's Corporation - Fast Food">MCD - McDonald's</span>
+					<span class="chip" title="Apple Inc. - Technology">AAPL</span>
+					<span class="chip" title="Microsoft Corporation - Technology">MSFT</span>
+					<span class="chip" title="Alphabet Inc. - Technology">GOOGL</span>
+					<span class="chip" title="Tesla Inc. - Automotive/Energy">TSLA</span>
+					<span class="chip" title="Amazon.com Inc. - E-commerce">AMZN</span>
+					<span class="chip" title="NVIDIA Corporation - Semiconductors">NVDA</span>
+					<span class="chip" title="Meta Platforms Inc. - Social Media">META</span>
+					<span class="chip" title="Netflix Inc. - Streaming">NFLX</span>
+					<span class="chip" title="JPMorgan Chase & Co. - Banking">JPM</span>
+					<span class="chip" title="Johnson & Johnson - Healthcare">JNJ</span>
+					<span class="chip" title="Visa Inc. - Financial Services">V</span>
+					<span class="chip" title="Walmart Inc. - Retail">WMT</span>
+					<span class="chip" title="Coca-Cola Company - Beverages">KO</span>
+					<span class="chip" title="Nike Inc. - Apparel">NKE</span>
+					<span class="chip" title="Disney - Entertainment">DIS</span>
+					<span class="chip" title="McDonald's Corporation - Fast Food">MCD</span>
 				</div>
 			</div>
 
@@ -143,7 +145,10 @@
 	<!-- FOOTER -->
 	<footer class="app-footer">
 		<p>🇺🇸 US Stock Market Analysis Only | Powered by AI | Developed by Daniel Thapa</p>
-		<p class="disclaimer">© 2024 AI Stock Advisor. This is not real financial advice. Always do your own research.</p>
+		<p class="disclaimer">
+			© 2024 AI Stock Advisor. This is not real financial advice. Always do your own research.<br>
+			<span style="font-size: 0.85em; opacity: 0.8;">💡 New to tickers? A stock ticker is a unique code (1-5 letters) identifying a company, e.g., AAPL = Apple Inc.</span>
+		</p>
 	</footer>
 
 	<!-- Toast Container -->
