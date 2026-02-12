@@ -163,7 +163,7 @@ function filterStocks() {
 
 // Analyze stock - redirect to home with ticker
 function analyzeStock(ticker) {
-    window.location.href = `index.html?ticker=${ticker}`;
+    window.location.href = `/?ticker=${ticker}`;
 }
 
 // Event listeners
