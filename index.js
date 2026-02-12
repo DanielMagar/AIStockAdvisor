@@ -1,6 +1,8 @@
 import { dates } from './utils/dates.js'
 
 const tickersArr = []
+let stockDataGlobal = []
+let chartInstance = null
 
 const generateReportBtn = document.querySelector('.generate-report-btn')
 
@@ -63,23 +65,35 @@ async function fetchStockData() {
                     throw new Error(`Polygon API failed for ${ticker} with status ${status}`)
                 }
 
-                const json = await response.json() // ✅ parse JSON
+                const json = await response.json()
 
                 if (!json.results || json.results.length === 0) {
                     throw new Error(`No results for ${ticker}`)
                 }
 
-                // ✅ convert to readable text for AI
+                // Store raw data for charts
+                const chartData = json.results.map(day => ({
+                    date: new Date(day.t).toISOString().split('T')[0],
+                    close: day.c,
+                    open: day.o
+                }))
+
+                // Convert to readable text for AI
                 const lines = json.results.map((day, i) => {
                     const date = new Date(day.t).toISOString().split('T')[0]
                     return `Day ${i + 1} (${date}): opened at $${day.o}, closed at $${day.c}`
                 })
 
-                return `${ticker}:\n${lines.join('\n')}\n`
+                return {
+                    ticker,
+                    text: `${ticker}:\n${lines.join('\n')}\n`,
+                    chartData
+                }
             })
         )
 
-        const combinedData = stockData.join('\n')
+        stockDataGlobal = stockData
+        const combinedData = stockData.map(s => s.text).join('\n')
         console.log('Formatted stock data sent to AI:\n', combinedData)
 
         fetchReport(combinedData)
@@ -115,10 +129,9 @@ Style:
         },
         {
             role: 'user',
-            content: data   // 👈 ONLY your formatted stock data
+            content: data
         }
     ]
-
 
     try {
         const url = 'https://openai-api-worker.magar-t-daniel.workers.dev/'
@@ -130,8 +143,13 @@ Style:
             },
             body: JSON.stringify(messages)
         })
+        
+        if (!response.ok) {
+            throw new Error(`API returned ${response.status}: ${response.statusText}`)
+        }
+        
         const text = await response.text()
-        console.log('AI worker raw response:', text)  // 👈 ADD THIS
+        console.log('AI worker raw response:', text)
         const cleaned = text
             .replace(/###\s*/g, '')
             .replace(/\*\*/g, '')
@@ -139,10 +157,10 @@ Style:
 
         renderReport(cleaned)
 
-
     } catch (err) {
-        console.error(err.message)
-        loadingArea.innerText = 'Unable to access AI. Please refresh and try again'
+        console.error('AI API Error:', err.message)
+        // Show chart anyway with error message
+        renderReport('Unable to generate AI report at this time. Please check your API configuration and try again.\n\nError: ' + err.message)
     }
 }
 
@@ -206,6 +224,83 @@ function renderReport(output) {
         badge.classList.add('hold')
     }
 
+    // Render chart
+    renderChart()
+}
+
+function renderChart() {
+    if (chartInstance) {
+        chartInstance.destroy()
+    }
+
+    const ctx = document.getElementById('stockChart').getContext('2d')
+    
+    const colors = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6']
+    
+    const datasets = stockDataGlobal.map((stock, index) => ({
+        label: stock.ticker,
+        data: stock.chartData.map(d => d.close),
+        borderColor: colors[index % colors.length],
+        backgroundColor: colors[index % colors.length] + '20',
+        borderWidth: 3,
+        tension: 0.4,
+        fill: true
+    }))
+
+    const labels = stockDataGlobal[0]?.chartData.map(d => d.date) || []
+
+    chartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels,
+            datasets
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    labels: {
+                        color: '#e2e8f0',
+                        font: {
+                            size: 14,
+                            weight: 600
+                        }
+                    }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                    titleColor: '#10b981',
+                    bodyColor: '#e2e8f0',
+                    borderColor: '#10b981',
+                    borderWidth: 1,
+                    padding: 12,
+                    displayColors: true
+                }
+            },
+            scales: {
+                y: {
+                    ticks: {
+                        color: '#94a3b8',
+                        callback: function(value) {
+                            return '$' + value.toFixed(2)
+                        }
+                    },
+                    grid: {
+                        color: 'rgba(148, 163, 184, 0.1)'
+                    }
+                },
+                x: {
+                    ticks: {
+                        color: '#94a3b8'
+                    },
+                    grid: {
+                        color: 'rgba(148, 163, 184, 0.1)'
+                    }
+                }
+            }
+        }
+    })
 }
 const newReportBtn = document.querySelector('.new-report-btn')
 
@@ -213,6 +308,12 @@ if (newReportBtn) {
     newReportBtn.addEventListener('click', () => {
         // Reset state
         tickersArr.length = 0
+        stockDataGlobal = []
+        
+        if (chartInstance) {
+            chartInstance.destroy()
+            chartInstance = null
+        }
 
         // Reset UI
         document.querySelector('.ticker-choice-display').textContent =

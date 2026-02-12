@@ -318,6 +318,33 @@ body {
   color: #fff;
 }
 
+/* REPORT CONTENT LAYOUT */
+
+.report-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  align-items: stretch;
+}
+
+/* CHARTS */
+
+.charts-container {
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+}
+
+#stockChart {
+  width: 100% !important;
+  height: auto !important;
+  max-height: 450px;
+}
+
 /* REPORT CARD */
 
 .report-card {
@@ -481,6 +508,10 @@ body {
     padding: 6px 10px;
   }
 
+  .report-content {
+    grid-template-columns: 1fr;
+  }
+
   .report-card {
     padding: 20px;
   }
@@ -492,5 +523,11 @@ body {
 
   .new-report-btn {
     width: 100%;
+  }
+}
+
+@media (max-width: 1024px) {
+  .report-content {
+    grid-template-columns: 1fr;
   }
 }
