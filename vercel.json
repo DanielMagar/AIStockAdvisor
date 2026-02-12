@@ -1,0 +1,7 @@
+{
+  "rewrites": [
+    { "source": "/stocks", "destination": "/stocks.html" },
+    { "source": "/", "destination": "/index.html" }
+  ],
+  "cleanUrls": true
+}
