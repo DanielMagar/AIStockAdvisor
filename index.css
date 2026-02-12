@@ -1,0 +1,496 @@
+/* RESET */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+  color: #e2e8f0;
+  min-height: 100vh;
+}
+
+/* =========================
+   HEADER
+========================= */
+
+.app-header {
+  background: rgba(15, 23, 42, 0.95);
+  border-bottom: 1px solid rgba(16, 185, 129, 0.2);
+  backdrop-filter: blur(10px);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.brand {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px 30px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.brand-title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.5px;
+}
+
+.subtitle {
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: #10b981;
+  letter-spacing: 0.5px;
+}
+
+/* =========================
+   LAYOUT
+========================= */
+
+.container {
+  max-width: 1200px;
+  margin: 50px auto;
+  padding: 0 30px;
+  display: grid;
+  gap: 30px;
+}
+
+/* =========================
+   CARD
+========================= */
+
+.card {
+  background: rgba(30, 41, 59, 0.6);
+  border-radius: 16px;
+  padding: 32px;
+  border: 1px solid rgba(16, 185, 129, 0.15);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(10px);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(16, 185, 129, 0.15);
+}
+
+/* =========================
+   TITLES & TEXT
+========================= */
+
+.panel-header h1,
+.report-header h2 {
+  margin: 0 0 12px;
+  font-weight: 800;
+  font-size: 1.75rem;
+  letter-spacing: -0.5px;
+  color: #fff;
+}
+
+.muted {
+  color: #94a3b8;
+  line-height: 1.6;
+}
+
+.tiny {
+  font-size: 0.8rem;
+  opacity: 0.7;
+  margin-top: 16px;
+}
+
+/* =========================
+   STOCK EXAMPLES
+========================= */
+
+.stock-examples {
+  margin: 24px 0;
+  padding: 20px;
+  background: rgba(15, 23, 42, 0.5);
+  border-radius: 12px;
+  border: 1px solid rgba(16, 185, 129, 0.1);
+}
+
+.example-label {
+  display: block;
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: #10b981;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stock-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  padding: 8px 14px;
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #10b981;
+  transition: all 0.2s ease;
+}
+
+.chip:hover {
+  background: rgba(16, 185, 129, 0.2);
+  transform: translateY(-1px);
+}
+
+/* =========================
+   FORM
+========================= */
+
+.ticker-form {
+  margin-top: 24px;
+  display: flex;
+  gap: 12px;
+}
+
+#ticker-input {
+  flex: 1;
+  padding: 16px 20px;
+  border-radius: 12px;
+  border: 2px solid rgba(16, 185, 129, 0.2);
+  font-size: 1rem;
+  background: rgba(15, 23, 42, 0.8);
+  color: #fff;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+#ticker-input::placeholder {
+  color: #64748b;
+}
+
+#ticker-input:focus {
+  outline: none;
+  border-color: #10b981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+  background: rgba(15, 23, 42, 0.95);
+}
+
+/* ADD BUTTON */
+
+.add-ticker-btn {
+  padding: 16px 28px;
+  border-radius: 12px;
+  border: none;
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.add-ticker-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+  background: linear-gradient(135deg, #059669, #047857);
+}
+
+/* =========================
+   TICKER LIST
+========================= */
+
+.ticker-display-wrapper {
+  margin-top: 24px;
+}
+
+.ticker-label {
+  display: block;
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: #94a3b8;
+  margin-bottom: 8px;
+}
+
+.ticker-choice-display {
+  margin: 0;
+  padding: 16px 20px;
+  border-radius: 12px;
+  background: rgba(15, 23, 42, 0.8);
+  min-height: 52px;
+  font-weight: 600;
+  font-size: 1.1rem;
+  letter-spacing: 1px;
+  border: 2px dashed rgba(16, 185, 129, 0.3);
+  color: #10b981;
+  display: flex;
+  align-items: center;
+}
+
+/* =========================
+   GENERATE BUTTON
+========================= */
+
+.generate-report-btn {
+  width: 100%;
+  margin-top: 24px;
+  padding: 18px;
+  border-radius: 12px;
+  border: none;
+  font-size: 1.1rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3);
+}
+
+.generate-report-btn:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 28px rgba(16, 185, 129, 0.5);
+  background: linear-gradient(135deg, #059669, #047857);
+}
+
+.generate-report-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* =========================
+   LOADING
+========================= */
+
+.loading-panel {
+  display: none;
+  align-items: center;
+  gap: 16px;
+  justify-content: center;
+  color: #10b981;
+  font-weight: 600;
+  padding: 40px;
+}
+
+.spinner {
+  width: 24px;
+  height: 24px;
+  border: 3px solid rgba(16, 185, 129, 0.2);
+  border-top-color: #10b981;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* =========================
+   OUTPUT PANEL
+========================= */
+
+.output-panel {
+  display: none;
+}
+
+.report-header {
+  margin-bottom: 24px;
+}
+
+.report-header h2 {
+  margin-bottom: 16px;
+  font-weight: 800;
+  font-size: 1.75rem;
+  letter-spacing: -0.5px;
+  color: #fff;
+}
+
+/* REPORT CARD */
+
+.report-card {
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  border-radius: 12px;
+  padding: 28px 32px;
+  line-height: 1.8;
+  min-height: 200px;
+  position: relative;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* =========================
+   VISUAL HIERARCHY INSIDE REPORT
+========================= */
+
+/* First paragraph as headline */
+.report-card p:first-child {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #f1f5f9;
+}
+
+/* Spacing between paragraphs */
+.report-card p {
+  margin: 0 0 16px;
+  color: #cbd5e1;
+}
+
+/* Emphasis */
+.report-card strong {
+  color: #fff;
+  font-weight: 700;
+}
+
+.report-card em {
+  color: #10b981;
+  font-style: normal;
+  font-weight: 600;
+}
+
+/* =========================
+   BUY / HOLD / SELL STRIPES
+========================= */
+
+.report-card.buy {
+  border-left: 5px solid #10b981;
+  background: linear-gradient(90deg, rgba(16, 185, 129, 0.1) 0%, rgba(15, 23, 42, 0.8) 10%);
+}
+
+.report-card.hold {
+  border-left: 5px solid #f59e0b;
+  background: linear-gradient(90deg, rgba(245, 158, 11, 0.1) 0%, rgba(15, 23, 42, 0.8) 10%);
+}
+
+.report-card.sell {
+  border-left: 5px solid #ef4444;
+  background: linear-gradient(90deg, rgba(239, 68, 68, 0.1) 0%, rgba(15, 23, 42, 0.8) 10%);
+}
+.report-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.new-report-btn {
+  padding: 12px 24px;
+  border-radius: 10px;
+  border: 2px solid rgba(16, 185, 129, 0.3);
+  background: rgba(15, 23, 42, 0.8);
+  color: #10b981;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.new-report-btn:hover {
+  background: rgba(16, 185, 129, 0.1);
+  border-color: #10b981;
+  transform: translateX(-2px);
+}
+.verdict-badge {
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  font-size: 0.85rem;
+  border: 2px solid;
+  text-transform: uppercase;
+}
+
+.verdict-badge.buy {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+  border-color: #10b981;
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+}
+
+.verdict-badge.hold {
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
+  border-color: #f59e0b;
+  box-shadow: 0 0 20px rgba(245, 158, 11, 0.3);
+}
+
+.verdict-badge.sell {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+  border-color: #ef4444;
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
+}
+
+/* =========================
+   FOOTER
+========================= */
+
+.app-footer {
+  text-align: center;
+  padding: 40px 20px;
+  font-size: 0.875rem;
+  color: #64748b;
+  border-top: 1px solid rgba(16, 185, 129, 0.1);
+  margin-top: 60px;
+}
+
+.app-footer p {
+  margin: 8px 0;
+}
+
+.disclaimer {
+  font-size: 0.8rem;
+  opacity: 0.8;
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width: 640px) {
+  .brand-title {
+    font-size: 1.25rem;
+  }
+
+  .ticker-form {
+    flex-direction: column;
+  }
+
+  .add-ticker-btn {
+    width: 100%;
+  }
+
+  .stock-chips {
+    gap: 6px;
+  }
+
+  .chip {
+    font-size: 0.75rem;
+    padding: 6px 10px;
+  }
+
+  .report-card {
+    padding: 20px;
+  }
+
+  .report-actions {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+
+  .new-report-btn {
+    width: 100%;
+  }
+}
