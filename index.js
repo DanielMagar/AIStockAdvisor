@@ -11,16 +11,47 @@ generateReportBtn.addEventListener('click', fetchStockData)
 document.getElementById('ticker-input-form').addEventListener('submit', (e) => {
     e.preventDefault()
     const tickerInput = document.getElementById('ticker-input')
-    if (tickerInput.value.length > 2) {
-        generateReportBtn.disabled = false
-        const newTickerStr = tickerInput.value
-        tickersArr.push(newTickerStr.toUpperCase())
+    const inputValue = tickerInput.value.trim()
+    
+    if (inputValue.length > 0) {
+        // Split by comma and process each ticker
+        const tickers = inputValue.split(',').map(t => t.trim().toUpperCase()).filter(t => t.length > 0)
+        
+        if (tickers.length === 0) {
+            const label = document.querySelector('.ticker-label')
+            label.style.color = 'red'
+            label.textContent = 'Please enter valid stock ticker(s)'
+            return
+        }
+        
+        // Add tickers (max 3 total)
+        tickers.forEach(ticker => {
+            if (tickersArr.length < 3 && !tickersArr.includes(ticker)) {
+                tickersArr.push(ticker)
+            }
+        })
+        
+        if (tickersArr.length > 0) {
+            generateReportBtn.disabled = false
+        }
+        
         tickerInput.value = ''
         renderTickers()
+        
+        // Reset label color
+        const label = document.querySelector('.ticker-label')
+        label.style.color = '#94a3b8'
+        label.textContent = 'Selected Tickers:'
+        
+        // Show warning if limit reached
+        if (tickersArr.length >= 3) {
+            label.style.color = '#f59e0b'
+            label.textContent = 'Maximum 3 tickers reached'
+        }
     } else {
-        const label = document.getElementsByTagName('label')[0]
+        const label = document.querySelector('.ticker-label')
         label.style.color = 'red'
-        label.textContent = 'You must add at least one ticker. A ticker is a 3 letter or more code for a stock. E.g TSLA for Tesla.'
+        label.textContent = 'Please enter a valid stock ticker (e.g., AAPL, TSLA, V, KO)'
     }
 })
 function renderTickers() {
