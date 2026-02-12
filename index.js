@@ -24,6 +24,15 @@ document.getElementById('ticker-input-form').addEventListener('submit', (e) => {
             return
         }
         
+        // Validate ticker format (only letters, 1-5 characters)
+        const invalidTickers = tickers.filter(t => !/^[A-Z]{1,5}$/.test(t))
+        if (invalidTickers.length > 0) {
+            const label = document.querySelector('.ticker-label')
+            label.style.color = 'red'
+            label.textContent = `Invalid ticker format: ${invalidTickers.join(', ')}. Use only letters (1-5 chars)`
+            return
+        }
+        
         // Add tickers (max 3 total)
         tickers.forEach(ticker => {
             if (tickersArr.length < 3 && !tickersArr.includes(ticker)) {
@@ -84,53 +93,97 @@ async function fetchStockData() {
     document.querySelector('.action-panel').style.display = 'none'
     loadingArea.style.display = 'flex'
 
+    const failedTickers = []
+
     try {
         const stockData = await Promise.all(
             tickersArr.map(async (ticker) => {
                 const url = `https://polygon-api-worker.magar-t-daniel.workers.dev/?ticker=${ticker}&start=${dates.startDate}&end=${dates.endDate}`
 
-                const response = await fetch(url)
-                const status = response.status
+                try {
+                    const response = await fetch(url)
+                    const status = response.status
 
-                if (status !== 200) {
-                    throw new Error(`Polygon API failed for ${ticker} with status ${status}`)
-                }
+                    if (status !== 200) {
+                        failedTickers.push(ticker)
+                        return null
+                    }
 
-                const json = await response.json()
+                    const json = await response.json()
 
-                if (!json.results || json.results.length === 0) {
-                    throw new Error(`No results for ${ticker}`)
-                }
+                    if (!json.results || json.results.length === 0) {
+                        failedTickers.push(ticker)
+                        return null
+                    }
 
-                // Store raw data for charts
-                const chartData = json.results.map(day => ({
-                    date: new Date(day.t).toISOString().split('T')[0],
-                    close: day.c,
-                    open: day.o
-                }))
+                    // Store raw data for charts
+                    const chartData = json.results.map(day => ({
+                        date: new Date(day.t).toISOString().split('T')[0],
+                        close: day.c,
+                        open: day.o
+                    }))
 
-                // Convert to readable text for AI
-                const lines = json.results.map((day, i) => {
-                    const date = new Date(day.t).toISOString().split('T')[0]
-                    return `Day ${i + 1} (${date}): opened at $${day.o}, closed at $${day.c}`
-                })
+                    // Convert to readable text for AI
+                    const lines = json.results.map((day, i) => {
+                        const date = new Date(day.t).toISOString().split('T')[0]
+                        return `Day ${i + 1} (${date}): opened at $${day.o}, closed at $${day.c}`
+                    })
 
-                return {
-                    ticker,
-                    text: `${ticker}:\n${lines.join('\n')}\n`,
-                    chartData
+                    return {
+                        ticker,
+                        text: `${ticker}:\n${lines.join('\n')}\n`,
+                        chartData
+                    }
+                } catch (err) {
+                    failedTickers.push(ticker)
+                    return null
                 }
             })
         )
 
-        stockDataGlobal = stockData
-        const combinedData = stockData.map(s => s.text).join('\n')
+        // Filter out failed tickers
+        const validStockData = stockData.filter(s => s !== null)
+
+        if (validStockData.length === 0) {
+            loadingArea.style.display = 'none'
+            document.querySelector('.action-panel').style.display = 'block'
+            
+            // Remove failed tickers from the array
+            failedTickers.forEach(ticker => {
+                const index = tickersArr.indexOf(ticker)
+                if (index > -1) tickersArr.splice(index, 1)
+            })
+            renderTickers()
+            
+            alert(`❌ No data found for: ${failedTickers.join(', ')}\n\nPossible reasons:\n• Ticker doesn't exist or is misspelled\n• Not a US stock\n• No recent trading data available\n\nPlease verify the ticker symbols and try again.`)
+            return
+        }
+
+        if (failedTickers.length > 0) {
+            // Remove failed tickers from the array
+            failedTickers.forEach(ticker => {
+                const index = tickersArr.indexOf(ticker)
+                if (index > -1) tickersArr.splice(index, 1)
+            })
+            
+            alert(`⚠️ Warning: Could not fetch data for ${failedTickers.join(', ')}\n\nThese tickers were removed. Continuing with: ${validStockData.map(s => s.ticker).join(', ')}\n\nTip: Double-check ticker spelling (e.g., GOOGL not GOGLE)`)
+        }
+
+        stockDataGlobal = validStockData
+        
+        // Update tickersArr to only include valid tickers
+        tickersArr.length = 0
+        validStockData.forEach(s => tickersArr.push(s.ticker))
+        
+        const combinedData = validStockData.map(s => s.text).join('\n')
         console.log('Formatted stock data sent to AI:\n', combinedData)
 
         fetchReport(combinedData)
 
     } catch (err) {
-        loadingArea.innerText = 'There was an error fetching stock data.'
+        loadingArea.style.display = 'none'
+        document.querySelector('.action-panel').style.display = 'block'
+        alert('❌ Error fetching stock data. Please try again.')
         console.error('Fetch stock data error:', err)
     }
 }
@@ -241,32 +294,59 @@ function renderReport(output) {
 
     const text = output.toLowerCase()
 
-    // Parse recommendations for each stock
+    // Split text into sections by stock ticker to analyze each separately
     stockDataGlobal.forEach(stock => {
         const ticker = stock.ticker
         const badge = document.createElement('span')
         badge.className = 'verdict-badge'
         
-        // Find ticker mention and nearby verdict
-        const tickerPattern = new RegExp(`${ticker}[\\s\\S]{0,200}(buy|sell|hold)`, 'i')
-        const match = text.match(tickerPattern)
+        // Find the section of text about this ticker
+        const tickerIndex = text.indexOf(ticker.toLowerCase())
+        if (tickerIndex === -1) {
+            badge.textContent = `${ticker}: HOLD`
+            badge.classList.add('hold')
+            verdictBadgesContainer.appendChild(badge)
+            return
+        }
         
-        let verdict = 'HOLD' // default
-        let verdictClass = 'hold'
+        // Get text from ticker mention to next ticker or end (max 500 chars)
+        const nextTickerIndex = stockDataGlobal
+            .map(s => text.indexOf(s.ticker.toLowerCase(), tickerIndex + 1))
+            .filter(i => i > tickerIndex)
+            .sort((a, b) => a - b)[0] || text.length
         
-        if (match) {
-            const foundVerdict = match[1].toLowerCase()
-            if (foundVerdict === 'buy') {
-                verdict = 'BUY'
-                verdictClass = 'buy'
-            } else if (foundVerdict === 'sell') {
-                verdict = 'SELL'
-                verdictClass = 'sell'
+        const section = text.substring(tickerIndex, Math.min(nextTickerIndex, tickerIndex + 500))
+        
+        // Find all occurrences of buy/sell/hold in this section
+        const buyMatches = [...section.matchAll(/\bbuy\b/g)]
+        const sellMatches = [...section.matchAll(/\bsell\b/g)]
+        const holdMatches = [...section.matchAll(/\bhold\b/g)]
+        
+        // Get the LAST occurrence (closest to end = final verdict)
+        let lastVerdict = { type: 'hold', index: -1 }
+        
+        if (buyMatches.length > 0) {
+            const lastBuy = buyMatches[buyMatches.length - 1]
+            if (lastBuy.index > lastVerdict.index) {
+                lastVerdict = { type: 'buy', index: lastBuy.index }
+            }
+        }
+        if (sellMatches.length > 0) {
+            const lastSell = sellMatches[sellMatches.length - 1]
+            if (lastSell.index > lastVerdict.index) {
+                lastVerdict = { type: 'sell', index: lastSell.index }
+            }
+        }
+        if (holdMatches.length > 0) {
+            const lastHold = holdMatches[holdMatches.length - 1]
+            if (lastHold.index > lastVerdict.index) {
+                lastVerdict = { type: 'hold', index: lastHold.index }
             }
         }
         
+        const verdict = lastVerdict.type.toUpperCase()
         badge.textContent = `${ticker}: ${verdict}`
-        badge.classList.add(verdictClass)
+        badge.classList.add(lastVerdict.type)
         verdictBadgesContainer.appendChild(badge)
     })
 
