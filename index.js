@@ -155,6 +155,8 @@ document.getElementById('clear-tickers-btn').addEventListener('click', () => {
 const loadingArea = document.querySelector('.loading-panel')
 const apiMessage = document.getElementById('api-message')
 
+
+
 async function fetchStockData() {
     document.querySelector('.action-panel').style.display = 'none'
     loadingArea.style.display = 'flex'
