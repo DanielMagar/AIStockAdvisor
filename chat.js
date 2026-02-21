@@ -122,8 +122,9 @@ async function sendMessage() {
         removeTypingIndicator(typingId);
         addMessage(response, 'bot');
 
-        // Try to extract and visualize data from response
-        if (lastDocumentText) {
+        // Only try to add chart if not an acknowledgment and document exists
+        const isAcknowledgment = /^(thanks?|thank you|ok|okay|got it|alright|cool|great|nice|perfect|awesome|appreciate it)\s*(thanks?|thank you)?[!.]*$/i.test(input.trim());
+        if (lastDocumentText && !isAcknowledgment) {
             tryAddChart(lastDocumentText, response);
         }
 
@@ -155,6 +156,20 @@ async function sendChatQuery(message) {
         content: message
     });
 
+    // Check if message is just acknowledgment/thanks
+    const isAcknowledgment = /^(thanks?|thank you|ok|okay|got it|alright|cool|great|nice|perfect|awesome|appreciate it|you'?re welcome|welcome)\s*(thanks?|thank you)?[!.]*$/i.test(message.trim());
+    
+    if (isAcknowledgment) {
+        const response = message.toLowerCase().includes('welcome') 
+            ? "Happy to help! Let me know if you need anything else about stocks or markets."
+            : "You're welcome! Feel free to ask if you have any other questions about stocks or need further analysis.";
+        conversationHistory.push({
+            role: 'assistant',
+            content: response
+        });
+        return response;
+    }
+
     // If we have a document in context, include it
     let fullQuestion;
     if (lastDocumentText) {
@@ -171,7 +186,6 @@ Provide a specific answer based on the document data above. Include actual numbe
         fullQuestion = `You are a stock market AI assistant. ${message}`;
     }
 
-    // Use the main OpenAI endpoint with messages array format
     const messages = [
         {
             role: 'system',

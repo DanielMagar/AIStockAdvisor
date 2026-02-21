@@ -342,7 +342,7 @@ Style:
     }
 }
 // DOCUMENT UPLOAD HANDLER
-let uploadedDocId = null
+let uploadedDocText = null
 
 const fileInput = document.getElementById('doc-upload')
 const toggle = document.getElementById('use-doc-toggle')
@@ -356,22 +356,16 @@ fileInput.addEventListener('change', async (e) => {
     const file = e.target.files[0]
     if (!file) return
 
+    if (!file.name.endsWith('.txt')) {
+        showToast("Only TXT files are supported on this page. For PDF analysis, please use the AI Chat page.", "warning", "File Type", 5000)
+        fileInput.value = ''
+        return
+    }
+
     try {
-        showToast("Uploading document...", "info", "Processing", 3000)
+        showToast("Loading document...", "info", "Processing", 2000)
 
-        const text = await file.text()
-        uploadedDocId = "doc-" + Date.now()
-
-        const response = await fetch(
-            "https://openai-api-worker.magar-t-daniel.workers.dev/upload",
-            {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ documentId: uploadedDocId, text })
-            }
-        )
-
-        if (!response.ok) throw new Error("Upload failed")
+        uploadedDocText = await file.text()
 
         // Show uploaded file
         uploadArea.querySelector('.upload-placeholder').style.display = 'none'
@@ -382,10 +376,10 @@ fileInput.addEventListener('change', async (e) => {
         toggle.checked = true
         useRAG = true
 
-        showToast("Document uploaded successfully!", "success", "Success", 3000)
+        showToast("Document loaded successfully!", "success", "Success", 3000)
 
     } catch (err) {
-        showToast("Upload failed: " + err.message, "error")
+        showToast("Failed to load document: " + err.message, "error")
         fileInput.value = ''
     }
 })
@@ -394,7 +388,7 @@ fileInput.addEventListener('change', async (e) => {
 removeFileBtn.addEventListener('click', (e) => {
     e.stopPropagation()
     fileInput.value = ''
-    uploadedDocId = null
+    uploadedDocText = null
     uploadArea.querySelector('.upload-placeholder').style.display = 'block'
     uploadedDisplay.style.display = 'none'
     toggle.disabled = true
@@ -411,47 +405,44 @@ toggle.addEventListener("change", () => {
         showToast("Normal AI mode enabled", "info", "Mode Changed", 2000)
 })
 async function fetchReportWithDoc(data) {
+    const messages = [
+        {
+            role: 'system',
+            content: `You are a colourful, dramatic stock market guru. Analyze stock data and write a fun, punchy report (max 150 words). For each stock: mention opening/closing prices, describe the trend, end with Buy/Hold/Sell recommendation. Use the provided document context to enhance your analysis. Style: Energetic, playful, no bullet points, no markdown, plain text only.`
+        },
+        {
+            role: 'user',
+            content: `Document context:\n${uploadedDocText}\n\nStock data:\n${data}`
+        }
+    ]
 
     try {
-
-        const url = 'https://openai-api-worker.magar-t-daniel.workers.dev/query'
+        const url = 'https://openai-api-worker.magar-t-daniel.workers.dev/'
 
         const response = await fetch(url, {
-
             method: 'POST',
-
             headers: {
                 'Content-Type': 'application/json'
             },
-
-            body: JSON.stringify({
-                question: `
-You are a colourful, dramatic stock market guru.
-
-Stock data:
-${data}
-
-Use uploaded document context if relevant.
-
-Give recommendation: Buy, Hold, or Sell.
-`
-            })
-
+            body: JSON.stringify(messages)
         })
 
         if (!response.ok)
             throw new Error("AI request failed")
 
         const text = await response.text()
+        const cleaned = text
+            .replace(/###\s*/g, '')
+            .replace(/\*\*/g, '')
+            .replace(/-\s+/g, '• ')
 
-        renderReport(text)
+        renderReport(cleaned)
 
     } catch (err) {
-
+        loadingArea.style.display = 'none'
+        document.querySelector('.action-panel').style.display = 'block'
         showToast("AI error: " + err.message, "error")
-
     }
-
 }
 // function renderReport(output) {
 //     loadingArea.style.display = 'none'
