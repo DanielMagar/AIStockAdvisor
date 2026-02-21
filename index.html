@@ -37,8 +37,9 @@
 				</div>
 			</div>
 			<nav class="nav-links">
-				<a href="/" class="active">Home</a>
+				<a href="/" class="active">Stock Analysis</a>
 				<a href="/stocks.html">Browse Stocks</a>
+				<a href="/chat.html">AI Chat</a>
 			</nav>
 		</div>
 	</header>
@@ -111,6 +112,48 @@
 			<button class="generate-report-btn" type="button" disabled>
 				🚀 Generate AI Report
 			</button>
+
+			<!-- DOCUMENT UPLOAD SECTION -->
+			<div class="doc-upload-section">
+				<div class="doc-upload-header">
+					<span class="doc-icon">📄</span>
+					<div>
+						<h3>Enhance with Document Analysis</h3>
+						<p class="doc-subtitle">Upload earnings reports or financial documents for deeper insights</p>
+					</div>
+				</div>
+
+				<div class="doc-upload-area" id="doc-upload-area">
+					<input type="file" id="doc-upload" accept=".txt,.pdf" />
+					<div class="upload-placeholder">
+						<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+							<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+							<polyline points="17 8 12 3 7 8"></polyline>
+							<line x1="12" y1="3" x2="12" y2="15"></line>
+						</svg>
+						<p class="upload-text">Drop your file here or <span class="upload-link">browse</span></p>
+						<p class="upload-hint">Supports PDF and TXT files</p>
+					</div>
+					<div class="uploaded-file-display" id="uploaded-file-display" style="display: none;">
+						<div class="file-info">
+							<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+								<path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
+								<polyline points="13 2 13 9 20 9"></polyline>
+							</svg>
+							<span id="file-name-display"></span>
+						</div>
+						<button class="remove-file-btn" id="remove-file-btn">×</button>
+					</div>
+				</div>
+
+				<div class="doc-toggle-wrapper">
+					<label class="toggle-switch">
+						<input type="checkbox" id="use-doc-toggle" disabled />
+						<span class="toggle-slider"></span>
+					</label>
+					<span class="toggle-label">Use document for AI analysis</span>
+				</div>
+			</div>
 
 			<p class="tiny muted">⚠️ For entertainment purposes only. Not financial advice.</p>
 		</section>

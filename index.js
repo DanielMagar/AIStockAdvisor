@@ -1,5 +1,7 @@
 import { dates } from './utils/dates.js'
 
+
+let useRAG = false
 const tickersArr = []
 let stockDataGlobal = []
 let chartInstance = null
@@ -256,7 +258,12 @@ async function fetchStockData() {
         const combinedData = validStockData.map(s => s.text).join('\n')
         console.log('Formatted stock data sent to AI:\n', combinedData)
 
-        fetchReport(combinedData)
+        // fetchReport(combinedData)
+        if (useRAG) {
+    fetchReportWithDoc(combinedData)
+} else {
+    fetchReport(combinedData)
+}
 
     } catch (err) {
         loadingArea.style.display = 'none'
@@ -334,7 +341,118 @@ Style:
         )
     }
 }
+// DOCUMENT UPLOAD HANDLER
+let uploadedDocId = null
 
+const fileInput = document.getElementById('doc-upload')
+const toggle = document.getElementById('use-doc-toggle')
+const uploadArea = document.getElementById('doc-upload-area')
+const uploadedDisplay = document.getElementById('uploaded-file-display')
+const fileNameDisplay = document.getElementById('file-name-display')
+const removeFileBtn = document.getElementById('remove-file-btn')
+
+// Handle file selection
+fileInput.addEventListener('change', async (e) => {
+    const file = e.target.files[0]
+    if (!file) return
+
+    try {
+        showToast("Uploading document...", "info", "Processing", 3000)
+
+        const text = await file.text()
+        uploadedDocId = "doc-" + Date.now()
+
+        const response = await fetch(
+            "https://openai-api-worker.magar-t-daniel.workers.dev/upload",
+            {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ documentId: uploadedDocId, text })
+            }
+        )
+
+        if (!response.ok) throw new Error("Upload failed")
+
+        // Show uploaded file
+        uploadArea.querySelector('.upload-placeholder').style.display = 'none'
+        uploadedDisplay.style.display = 'flex'
+        fileNameDisplay.textContent = file.name
+
+        toggle.disabled = false
+        toggle.checked = true
+        useRAG = true
+
+        showToast("Document uploaded successfully!", "success", "Success", 3000)
+
+    } catch (err) {
+        showToast("Upload failed: " + err.message, "error")
+        fileInput.value = ''
+    }
+})
+
+// Remove file
+removeFileBtn.addEventListener('click', (e) => {
+    e.stopPropagation()
+    fileInput.value = ''
+    uploadedDocId = null
+    uploadArea.querySelector('.upload-placeholder').style.display = 'block'
+    uploadedDisplay.style.display = 'none'
+    toggle.disabled = true
+    toggle.checked = false
+    useRAG = false
+    showToast("Document removed", "info", "Removed", 2000)
+})
+
+toggle.addEventListener("change", () => {
+    useRAG = toggle.checked
+    if (useRAG)
+        showToast("RAG mode enabled", "info", "Mode Changed", 2000)
+    else
+        showToast("Normal AI mode enabled", "info", "Mode Changed", 2000)
+})
+async function fetchReportWithDoc(data) {
+
+    try {
+
+        const url = 'https://openai-api-worker.magar-t-daniel.workers.dev/query'
+
+        const response = await fetch(url, {
+
+            method: 'POST',
+
+            headers: {
+                'Content-Type': 'application/json'
+            },
+
+            body: JSON.stringify({
+                question: `
+You are a colourful, dramatic stock market guru.
+
+Stock data:
+${data}
+
+Use uploaded document context if relevant.
+
+Give recommendation: Buy, Hold, or Sell.
+`
+            })
+
+        })
+
+        if (!response.ok)
+            throw new Error("AI request failed")
+
+        const text = await response.text()
+
+        renderReport(text)
+
+    } catch (err) {
+
+        showToast("AI error: " + err.message, "error")
+
+    }
+
+}
 // function renderReport(output) {
 //     loadingArea.style.display = 'none'
 //     const outputArea = document.querySelector('.output-panel')
