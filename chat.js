@@ -1,5 +1,6 @@
 let uploadedFile = null;
 let conversationHistory = [];
+let lastDocumentText = null; // Store last uploaded document text
 
 // Configure PDF.js worker
 if (typeof pdfjsLib !== 'undefined') {
@@ -70,9 +71,10 @@ document.getElementById('file-input').addEventListener('change', async (e) => {
 
 document.getElementById('remove-file-btn').addEventListener('click', () => {
     uploadedFile = null;
+    lastDocumentText = null; // Clear document context
     document.getElementById('file-input').value = '';
     document.getElementById('file-upload-section').style.display = 'none';
-    showToast('File removed', 'info', 'Removed', 2000);
+    showToast('File removed. Document context cleared.', 'info', 'Removed', 2000);
 });
 
 // Auto-resize textarea
@@ -148,7 +150,21 @@ async function sendChatQuery(message) {
         content: message
     });
 
-    const enhancedQuestion = `You are a stock market AI assistant. Analyze the provided information and give clear BUY, SELL, or HOLD recommendations with reasoning.\n\nUser Question: ${message}`;
+    // If we have a document in context, include it
+    let enhancedQuestion;
+    if (lastDocumentText) {
+        enhancedQuestion = `Previous context: I have analyzed this financial document:
+
+${lastDocumentText}
+
+---
+
+User's follow-up question: ${message}
+
+Provide a specific answer based on the document data above. Include actual numbers and recommendations from the document.`;
+    } else {
+        enhancedQuestion = `You are a stock market AI assistant. Analyze the provided information and give clear BUY, SELL, or HOLD recommendations with reasoning.\n\nUser Question: ${message}`;
+    }
 
     const response = await fetch('https://openai-api-worker.magar-t-daniel.workers.dev/query', {
         method: 'POST',
@@ -188,9 +204,11 @@ async function analyzeDocument(file, query = '') {
             throw new Error('Could not extract text from document');
         }
 
+        // Store document text for follow-up questions
+        lastDocumentText = text;
+
         showToast('Analyzing with AI...', 'success', 'Processing', 2000);
 
-        // Build comprehensive query with document content
         const userQuery = query || 'Should I buy, sell, or hold this stock?';
         const fullQuestion = `I have uploaded a financial document. Here is the complete content:
 
