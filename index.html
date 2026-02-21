@@ -41,6 +41,11 @@
 				<a href="/stocks.html">Browse Stocks</a>
 				<a href="/chat.html">AI Chat</a>
 			</nav>
+			<button class="hamburger" id="hamburger" aria-label="Menu">
+				<span></span>
+				<span></span>
+				<span></span>
+			</button>
 		</div>
 	</header>
 
@@ -198,6 +203,13 @@
 	<div id="toast-container"></div>
 
 	<script src="index.js" type="module"></script>
+	<script>
+		// Hamburger menu toggle
+		document.getElementById('hamburger')?.addEventListener('click', function() {
+			this.classList.toggle('active');
+			document.querySelector('.nav-links').classList.toggle('active');
+		});
+	</script>
 </body>
 
 </html>

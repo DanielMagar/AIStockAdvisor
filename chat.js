@@ -122,6 +122,11 @@ async function sendMessage() {
         removeTypingIndicator(typingId);
         addMessage(response, 'bot');
 
+        // Try to extract and visualize data from response
+        if (lastDocumentText) {
+            tryAddChart(lastDocumentText, response);
+        }
+
         // Clear uploaded file after sending
         if (uploadedFile) {
             uploadedFile = null;
@@ -151,9 +156,9 @@ async function sendChatQuery(message) {
     });
 
     // If we have a document in context, include it
-    let enhancedQuestion;
+    let fullQuestion;
     if (lastDocumentText) {
-        enhancedQuestion = `Previous context: I have analyzed this financial document:
+        fullQuestion = `Previous context: I have analyzed this financial document:
 
 ${lastDocumentText}
 
@@ -163,18 +168,30 @@ User's follow-up question: ${message}
 
 Provide a specific answer based on the document data above. Include actual numbers and recommendations from the document.`;
     } else {
-        enhancedQuestion = `You are a stock market AI assistant. Analyze the provided information and give clear BUY, SELL, or HOLD recommendations with reasoning.\n\nUser Question: ${message}`;
+        fullQuestion = `You are a stock market AI assistant. ${message}`;
     }
 
-    const response = await fetch('https://openai-api-worker.magar-t-daniel.workers.dev/query', {
+    // Use the main OpenAI endpoint with messages array format
+    const messages = [
+        {
+            role: 'system',
+            content: 'You are a stock market AI assistant. Provide clear, specific investment recommendations based on the data provided.'
+        },
+        {
+            role: 'user',
+            content: fullQuestion
+        }
+    ];
+
+    const response = await fetch('https://openai-api-worker.magar-t-daniel.workers.dev/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            question: enhancedQuestion
-        })
+        body: JSON.stringify(messages)
     });
 
     if (!response.ok) {
+        const errorText = await response.text();
+        console.error('API Error:', errorText);
         throw new Error('Failed to get AI response');
     }
 
@@ -186,6 +203,145 @@ Provide a specific answer based on the document data above. Include actual numbe
     });
 
     return text;
+}
+
+// Try to extract and visualize financial data
+function tryAddChart(documentText, aiResponse) {
+    const metrics = extractFinancialMetrics(documentText);
+    
+    if (metrics && (metrics.revenue || metrics.prices)) {
+        addChartMessage(metrics);
+    }
+}
+
+function extractFinancialMetrics(text) {
+    const metrics = {};
+    
+    console.log('Extracting metrics from document...');
+    
+    // Extract price data with more flexible patterns
+    const priceMatch = text.match(/Current Price[:\s~]+\$?([\d,]+\.?\d*)/i) || 
+                       text.match(/Price[:\s~]+\$?([\d,]+\.?\d*)/i);
+    
+    // Match both "52-Week Range" and separate "52-week High/Low"
+    const rangeMatch = text.match(/52-Week Range[:\s]+\$?([\d,]+\.?\d*)\s*[–-]\s*\$?([\d,]+\.?\d*)/i);
+    const highMatch = text.match(/52-week High[:\s~]+\$?([\d,]+)/i) || 
+                      text.match(/52-Week.*High[:\s~]+\$?([\d,]+)/i);
+    const lowMatch = text.match(/52-week Low[:\s~]+\$?([\d,]+)/i) ||
+                     text.match(/52-Week.*Low[:\s~]+\$?([\d,]+)/i);
+    
+    const targetMatch = text.match(/Median[:\s]+\$?([\d,]+\.?\d*)/i) ||
+                        text.match(/12-Month Price Target[s]?[:\s]+.*Median[:\s]+\$?([\d,]+\.?\d*)/i);
+    
+    if (priceMatch || rangeMatch || highMatch || lowMatch || targetMatch) {
+        metrics.prices = {
+            current: priceMatch ? parseFloat(priceMatch[1].replace(/,/g, '')) : null,
+            low52: rangeMatch ? parseFloat(rangeMatch[1].replace(/,/g, '')) : 
+                   (lowMatch ? parseFloat(lowMatch[1].replace(/,/g, '')) : null),
+            high52: rangeMatch ? parseFloat(rangeMatch[2].replace(/,/g, '')) : 
+                    (highMatch ? parseFloat(highMatch[1].replace(/,/g, '')) : null),
+            targetMedian: targetMatch ? parseFloat(targetMatch[1].replace(/,/g, '')) : null
+        };
+        console.log('Extracted prices:', metrics.prices);
+    } else {
+        console.log('No price data found in document');
+    }
+    
+    return Object.keys(metrics).length > 0 ? metrics : null;
+}
+
+function addChartMessage(metrics) {
+    const messagesContainer = document.getElementById('chat-messages');
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'message bot-message';
+    
+    const chartId = 'chart-' + Date.now();
+    
+    messageDiv.innerHTML = `
+        <div class="message-avatar">📊</div>
+        <div class="message-content chart-content">
+            <h3>Financial Visualization</h3>
+            <canvas id="${chartId}" style="max-height: 300px;"></canvas>
+        </div>
+    `;
+    
+    messagesContainer.appendChild(messageDiv);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    
+    setTimeout(() => createChart(chartId, metrics), 100);
+}
+
+function createChart(chartId, metrics) {
+    const ctx = document.getElementById(chartId);
+    if (!ctx) {
+        console.error('Chart canvas not found:', chartId);
+        return;
+    }
+    
+    console.log('Creating chart with metrics:', metrics);
+    
+    if (metrics.prices) {
+        const { low52, current, high52, targetMedian } = metrics.prices;
+        
+        console.log('Price values:', { low52, current, high52, targetMedian });
+        
+        if (!low52 && !high52 && !current) {
+            console.log('No price data available');
+            return;
+        }
+        
+        // Create area chart showing price range
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Year Low', 'Current', 'Year High'],
+                datasets: [{
+                    label: 'Price Range',
+                    data: [low52 || current, current, high52 || current],
+                    fill: true,
+                    backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                    borderColor: 'rgba(16, 185, 129, 1)',
+                    borderWidth: 3,
+                    tension: 0.4,
+                    pointRadius: 8,
+                    pointBackgroundColor: ['#ef4444', '#10b981', '#3b82f6'],
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2
+                }, targetMedian ? {
+                    label: 'Target Price',
+                    data: [targetMedian, targetMedian, targetMedian],
+                    borderColor: 'rgba(245, 158, 11, 1)',
+                    borderWidth: 2,
+                    borderDash: [10, 5],
+                    fill: false,
+                    pointRadius: 0
+                } : null].filter(Boolean)
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: { display: true },
+                    title: {
+                        display: true,
+                        text: 'Stock Price Analysis',
+                        font: { size: 16, weight: 'bold' },
+                        color: '#0f172a'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        ticks: {
+                            callback: (value) => '$' + value.toFixed(2)
+                        }
+                    }
+                }
+            }
+        });
+        
+        console.log('Chart created');
+    }
 }
 
 // Analyze document with RAG
@@ -202,6 +358,38 @@ async function analyzeDocument(file, query = '') {
 
         if (!text || text.trim().length === 0) {
             throw new Error('Could not extract text from document');
+        }
+
+        // LLM Classifier - validate document is financial
+        showToast('Validating document...', 'info', 'Validating', 2000);
+        
+        const snippet = text.substring(0, 1000);
+        const validationMessages = [
+            {
+                role: 'system',
+                content: 'You are a specialized financial validator. Analyze the following text. If it is related to stocks, company financials, market analysis, or investing, reply with "VALID". If it is about anything else (cooking, travel, general news, etc.), reply with "INVALID". Do not provide any other text.'
+            },
+            {
+                role: 'user',
+                content: snippet
+            }
+        ];
+
+        const validationResponse = await fetch('https://openai-api-worker.magar-t-daniel.workers.dev/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(validationMessages)
+        });
+
+        if (!validationResponse.ok) {
+            throw new Error('Validation failed');
+        }
+
+        const validationResult = await validationResponse.text();
+        
+        if (validationResult.trim().toUpperCase() !== 'VALID') {
+            showToast('This document is not related to stocks or financial markets. Please upload equity research reports, earnings statements, or stock analysis documents.', 'error', 'Invalid Document', 6000);
+            throw new Error('Non-financial document');
         }
 
         // Store document text for follow-up questions
@@ -226,15 +414,26 @@ Provide:
 5. Reasoning for your recommendation
 6. Price targets if mentioned in the document`;
         
-        const queryResponse = await fetch('https://openai-api-worker.magar-t-daniel.workers.dev/query', {
+        const messages = [
+            {
+                role: 'system',
+                content: 'You are a stock market analyst. Analyze financial documents and provide clear investment recommendations.'
+            },
+            {
+                role: 'user',
+                content: fullQuestion
+            }
+        ];
+
+        const queryResponse = await fetch('https://openai-api-worker.magar-t-daniel.workers.dev/', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                question: fullQuestion
-            })
+            body: JSON.stringify(messages)
         });
 
         if (!queryResponse.ok) {
+            const errorText = await queryResponse.text();
+            console.error('API Error:', errorText);
             throw new Error('Failed to analyze document');
         }
 
