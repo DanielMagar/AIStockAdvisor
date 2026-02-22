@@ -165,3 +165,16 @@ body.dark-theme .new-report-btn:hover {
     margin-right: 12px;
   }
 }
+
+body.dark-theme .hamburger span {
+  background: #e2e8f0;
+}
+
+body.dark-theme .nav-links {
+  background: rgba(15, 23, 42, 0.98);
+}
+
+body.dark-theme .nav-links a {
+  color: #e2e8f0;
+  border-bottom-color: rgba(102, 126, 234, 0.2);
+}
