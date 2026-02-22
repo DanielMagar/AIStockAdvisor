@@ -31,7 +31,7 @@ export default {
     try {
       const messages = await request.json()
       const chatCompletion = await openai.chat.completions.create({
-        model: 'gpt-4o-mini',
+        model: "gpt-5.2",
         messages,
         temperature: 1.1,
         presence_penalty: 0,
