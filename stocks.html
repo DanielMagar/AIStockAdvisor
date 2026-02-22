@@ -44,7 +44,7 @@
 				<a href="/chat.html">AI Chat</a>
 			</nav>
 			<button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme" title="Toggle dark mode">
-				<img src="./images/icons8-crescent-moon-96.png" alt="Toggle theme" class="theme-icon" width="24" height="24" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';" />
+				<img src="/images/icons8-crescent-moon-96.png" alt="Toggle theme" class="theme-icon" width="24" height="24" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';" />
 				<span class="theme-icon-fallback" style="display:none;">🌙</span>
 			</button>
 			<button class="hamburger" id="hamburger" aria-label="Menu">
@@ -63,7 +63,7 @@
 					<h1>📚 Top 100 US Stocks</h1>
 					<p class="hero-subtitle">Explore America's most traded companies by sector</p>
 				</div>
-				<img src="./images/stocks3.png" alt="Stock Analysis" style="width: 120px; height: auto; opacity: 0.9;" />
+				<img src="/images/stocks3.png" alt="Stock Analysis" style="width: 120px; height: auto; opacity: 0.9;" />
 			</div>
 			</div>
 			
@@ -104,7 +104,7 @@
 			const img = themeIcon;
 			const fallback = document.querySelector('.theme-icon-fallback');
 			if (img) {
-				img.src = './images/icons8-sun-96.png';
+				img.src = '/images/icons8-sun-96.png';
 				img.onerror = () => { img.style.display='none'; fallback.style.display='inline'; fallback.textContent='☀️'; };
 			}
 			if (fallback && fallback.style.display !== 'none') fallback.textContent = '☀️';
@@ -116,7 +116,7 @@
 			const img = themeIcon;
 			const fallback = document.querySelector('.theme-icon-fallback');
 			if (img) {
-				img.src = isDark ? './images/icons8-sun-96.png' : './images/icons8-crescent-moon-96.png';
+				img.src = isDark ? '/images/icons8-sun-96.png' : '/images/icons8-crescent-moon-96.png';
 				img.onerror = () => { img.style.display='none'; fallback.style.display='inline'; fallback.textContent=isDark?'☀️':'🌙'; };
 			}
 			if (fallback && fallback.style.display !== 'none') fallback.textContent = isDark ? '☀️' : '🌙';

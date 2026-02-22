@@ -39,7 +39,7 @@
 				<a href="/chat.html" class="active">AI Chat</a>
 			</nav>
 			<button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme" title="Toggle dark mode">
-				<img src="./images/icons8-crescent-moon-96.png" alt="Toggle theme" class="theme-icon" width="24" height="24" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';" />
+				<img src="/images/icons8-crescent-moon-96.png" alt="Toggle theme" class="theme-icon" width="24" height="24" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';" />
 				<span class="theme-icon-fallback" style="display:none;">🌙</span>
 			</button>
 			<button class="hamburger" id="hamburger" aria-label="Menu">
@@ -53,18 +53,18 @@
 	<main class="chat-container">
 		<div class="chat-header">
 			<div style="display: flex; align-items: center; gap: 16px; justify-content: center;">
-				<img src="./images/stocks4.png" alt="Chat" style="width: 80px; height: auto; opacity: 0.9;" />
+				<img src="/images/stocks4.png" alt="Chat" style="width: 80px; height: auto; opacity: 0.9;" />
 				<div>
 					<h2>💬 AI Stock Chat Assistant</h2>
 					<p>Ask questions about stocks or upload financial documents for analysis</p>
 				</div>
-				<img src="./images/stocks6.png" alt="Analysis" style="width: 80px; height: auto; opacity: 0.9;" />
+				<img src="/images/stocks6.png" alt="Analysis" style="width: 80px; height: auto; opacity: 0.9;" />
 			</div>
 		</div>
 
 		<div class="chat-messages" id="chat-messages">
 			<div class="message bot-message">
-				<div class="message-avatar"><img src="./images/chatbot.png" alt="AI" width="32" height="32" onerror="this.outerHTML='🤖'" /></div>
+				<div class="message-avatar"><img src="/images/chatbot.png" alt="AI" width="32" height="32" onerror="this.outerHTML='🤖'" /></div>
 				<div class="message-content">
 					<p>Hello! I'm your AI Stock Assistant. I can help you with:</p>
 					<ul>
@@ -112,7 +112,7 @@
 			const img = themeIcon;
 			const fallback = document.querySelector('.theme-icon-fallback');
 			if (img) {
-				img.src = './images/icons8-sun-96.png';
+				img.src = '/images/icons8-sun-96.png';
 				img.onerror = () => { img.style.display='none'; fallback.style.display='inline'; fallback.textContent='☀️'; };
 			}
 			if (fallback && fallback.style.display !== 'none') fallback.textContent = '☀️';
@@ -124,7 +124,7 @@
 			const img = themeIcon;
 			const fallback = document.querySelector('.theme-icon-fallback');
 			if (img) {
-				img.src = isDark ? './images/icons8-sun-96.png' : './images/icons8-crescent-moon-96.png';
+				img.src = isDark ? '/images/icons8-sun-96.png' : '/images/icons8-crescent-moon-96.png';
 				img.onerror = () => { img.style.display='none'; fallback.style.display='inline'; fallback.textContent=isDark?'☀️':'🌙'; };
 			}
 			if (fallback && fallback.style.display !== 'none') fallback.textContent = isDark ? '☀️' : '🌙';
