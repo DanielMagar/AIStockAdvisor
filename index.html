@@ -9,9 +9,11 @@
 
 	<link rel="preconnect" href="https://fonts.googleapis.com" />
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+	<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 
 	<link rel="stylesheet" href="index.css" />
+	<link rel="stylesheet" href="theme-update.css" />
+	<link rel="stylesheet" href="dark-theme.css" />
 	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 </head>
@@ -21,26 +23,31 @@
 	<header class="app-header">
 		<div class="brand">
 			<div class="logo">
+				<a href="/" style="display: flex; align-items: center; gap: 16px; text-decoration: none; color: inherit;">
 				<svg width="40" height="40" viewBox="0 0 40 40" fill="none">
 					<rect width="40" height="40" rx="8" fill="url(#gradient)"/>
 					<path d="M10 25L15 18L20 22L25 12L30 16" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
 					<defs>
 						<linearGradient id="gradient" x1="0" y1="0" x2="40" y2="40">
-							<stop offset="0%" stop-color="#10b981"/>
-							<stop offset="100%" stop-color="#059669"/>
+							<stop offset="0%" stop-color="#6366f1"/>
+							<stop offset="100%" stop-color="#4f46e5"/>
 						</linearGradient>
 					</defs>
 				</svg>
 				<div>
 					<h1 class="brand-title">AI Stock Advisor</h1>
-					<span class="subtitle">🇺🇸 US Market Predictions</span>
+					<span class="subtitle">US Market Predictions</span>
 				</div>
+				</a>
 			</div>
 			<nav class="nav-links">
 				<a href="/" class="active">Stock Analysis</a>
 				<a href="/stocks.html">Browse Stocks</a>
 				<a href="/chat.html">AI Chat</a>
 			</nav>
+			<button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme" title="Toggle dark mode">
+				<img src="/images/icons8-crescent-moon-96.png" alt="Toggle theme" class="theme-icon" width="24" height="24" />
+			</button>
 			<button class="hamburger" id="hamburger" aria-label="Menu">
 				<span></span>
 				<span></span>
@@ -137,7 +144,6 @@
 							<line x1="12" y1="3" x2="12" y2="15"></line>
 						</svg>
 						<p class="upload-text">Drop your file here or <span class="upload-link">browse</span></p>
-						<p class="upload-hint">Supports PDF and TXT files</p>
 					</div>
 					<div class="uploaded-file-display" id="uploaded-file-display" style="display: none;">
 						<div class="file-info">
@@ -150,6 +156,7 @@
 						<button class="remove-file-btn" id="remove-file-btn">×</button>
 					</div>
 				</div>
+				<p class="upload-hint" style="text-align: center; margin-top: 8px;">Supports TXT files only. For PDF analysis, <a href="/chat.html" style="color: #6366f1; text-decoration: underline; font-weight: 500;">click here</a></p>
 
 				<div class="doc-toggle-wrapper">
 					<label class="toggle-switch">
@@ -165,8 +172,14 @@
 
 		<!-- LOADING PANEL (JS depends on this class + #api-message) -->
 		<section class="loading-panel">
-			<div class="spinner"></div>
-			<div id="api-message">Querying market data…</div>
+			<div class="ai-brain-animation">
+				<div class="brain-pulse"></div>
+				<div class="brain-icon">🧠</div>
+			</div>
+			<div id="api-message" class="ai-loading-text">AI is analyzing market data...</div>
+			<div class="loading-dots">
+				<span></span><span></span><span></span>
+			</div>
 		</section>
 
 		<!-- OUTPUT PANEL (JS depends on this class) -->
@@ -194,7 +207,7 @@
 	<footer class="app-footer">
 		<p>🇺🇸 US Stock Market Analysis Only | Powered by AI | Developed by Daniel Thapa</p>
 		<p class="disclaimer">
-			© 2024 AI Stock Advisor. This is not real financial advice. Always do your own research.<br>
+			 © <span id="year"></span> AI Stock Advisor. This is not real financial advice. Always do your own research.<br>
 			<span style="font-size: 0.85em; opacity: 0.8;">💡 New to tickers? A stock ticker is a unique code (1-5 letters) identifying a company, e.g., AAPL = Apple Inc.</span>
 		</p>
 	</footer>
@@ -204,11 +217,30 @@
 
 	<script src="index.js" type="module"></script>
 	<script>
+		// Theme toggle
+		const themeToggle = document.getElementById('theme-toggle');
+		const themeIcon = document.querySelector('.theme-icon');
+		const savedTheme = localStorage.getItem('theme');
+		if (savedTheme === 'dark') {
+			document.body.classList.add('dark-theme');
+			if (themeIcon) themeIcon.src = '/images/icons8-sun-96.png';
+			themeToggle.title = 'Toggle light mode';
+		}
+		themeToggle?.addEventListener('click', () => {
+			document.body.classList.toggle('dark-theme');
+			const isDark = document.body.classList.contains('dark-theme');
+			if (themeIcon) themeIcon.src = isDark ? '/images/icons8-sun-96.png' : '/images/icons8-crescent-moon-96.png';
+			themeToggle.title = isDark ? 'Toggle light mode' : 'Toggle dark mode';
+			localStorage.setItem('theme', isDark ? 'dark' : 'light');
+			window.dispatchEvent(new Event('themeChanged'));
+		});
+
 		// Hamburger menu toggle
 		document.getElementById('hamburger')?.addEventListener('click', function() {
 			this.classList.toggle('active');
 			document.querySelector('.nav-links').classList.toggle('active');
 		});
+		document.getElementById("year").textContent = new Date().getFullYear();
 	</script>
 </body>
 

@@ -163,6 +163,68 @@ async function fetchStockData() {
     document.querySelector('.action-panel').style.display = 'none'
     loadingArea.style.display = 'flex'
 
+    // If only document is uploaded (no tickers), analyze document directly
+    if (useRAG && uploadedDocText && tickersArr.length === 0) {
+        try {
+            const messages = [
+                {
+                    role: 'system',
+                    content: `You are a colourful, dramatic stock market guru. Analyze the financial document and write a fun, punchy report (max 150 words). Provide: key insights, trend analysis, and clear Buy/Hold/Sell recommendation. Style: Energetic, playful, no bullet points, no markdown, plain text only.`
+                },
+                {
+                    role: 'user',
+                    content: `Analyze this financial document:\n\n${uploadedDocText}`
+                }
+            ]
+
+            const response = await fetch('https://openai-api-worker.magar-t-daniel.workers.dev/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(messages)
+            })
+
+            if (!response.ok) throw new Error('AI request failed')
+
+            const text = await response.text()
+            const cleaned = text.replace(/###\s*/g, '').replace(/\*\*/g, '').replace(/-\s+/g, '• ')
+
+            // Clear uploaded file
+            fileInput.value = ''
+            uploadedDocText = null
+            uploadArea.querySelector('.upload-placeholder').style.display = 'block'
+            uploadedDisplay.style.display = 'none'
+            toggle.disabled = true
+            toggle.checked = false
+            useRAG = false
+            document.getElementById('ticker-input').disabled = false
+            document.querySelectorAll('.clickable-chip').forEach(chip => chip.style.pointerEvents = 'auto')
+            document.querySelector('.add-ticker-btn').disabled = false
+            generateReportBtn.disabled = true
+
+            loadingArea.style.display = 'none'
+            document.querySelector('.output-panel').style.display = 'block'
+            
+            // Show message instead of chart
+            const chartsContainer = document.querySelector('.charts-container')
+            chartsContainer.innerHTML = '<p style="text-align: center; color: #94a3b8; padding: 40px;">📄 Document analysis complete. Add stock tickers to see price charts.</p>'
+            
+            const card = document.querySelector('.report-card')
+            card.innerHTML = `<p>${cleaned}</p>`
+            
+            const textLower = cleaned.toLowerCase()
+            card.classList.remove('buy', 'hold', 'sell')
+            if (textLower.includes('buy')) card.classList.add('buy')
+            else if (textLower.includes('sell')) card.classList.add('sell')
+            else card.classList.add('hold')
+
+        } catch (err) {
+            loadingArea.style.display = 'none'
+            document.querySelector('.action-panel').style.display = 'block'
+            showToast('AI error: ' + err.message, 'error')
+        }
+        return
+    }
+
     const failedTickers = []
 
     try {
@@ -257,6 +319,20 @@ async function fetchStockData() {
         
         const combinedData = validStockData.map(s => s.text).join('\n')
         console.log('Formatted stock data sent to AI:\n', combinedData)
+
+        // Clear uploaded file after generating report
+        if (uploadedDocText) {
+            fileInput.value = ''
+            uploadedDocText = null
+            uploadArea.querySelector('.upload-placeholder').style.display = 'block'
+            uploadedDisplay.style.display = 'none'
+            toggle.disabled = true
+            toggle.checked = false
+            useRAG = false
+            document.getElementById('ticker-input').disabled = false
+            document.querySelectorAll('.clickable-chip').forEach(chip => chip.style.pointerEvents = 'auto')
+            document.querySelector('.add-ticker-btn').disabled = false
+        }
 
         // fetchReport(combinedData)
         if (useRAG) {
@@ -376,6 +452,14 @@ fileInput.addEventListener('change', async (e) => {
         toggle.checked = true
         useRAG = true
 
+        // Disable ticker inputs
+        document.getElementById('ticker-input').disabled = true
+        document.querySelectorAll('.clickable-chip').forEach(chip => chip.style.pointerEvents = 'none')
+        document.querySelector('.add-ticker-btn').disabled = true
+
+        // Enable generate button
+        generateReportBtn.disabled = false
+
         showToast("Document loaded successfully!", "success", "Success", 3000)
 
     } catch (err) {
@@ -394,6 +478,17 @@ removeFileBtn.addEventListener('click', (e) => {
     toggle.disabled = true
     toggle.checked = false
     useRAG = false
+
+    // Re-enable ticker inputs
+    document.getElementById('ticker-input').disabled = false
+    document.querySelectorAll('.clickable-chip').forEach(chip => chip.style.pointerEvents = 'auto')
+    document.querySelector('.add-ticker-btn').disabled = false
+
+    // Disable generate button if no tickers
+    if (tickersArr.length === 0) {
+        generateReportBtn.disabled = true
+    }
+
     showToast("Document removed", "info", "Removed", 2000)
 })
 
@@ -566,6 +661,12 @@ function renderChart() {
 
     const labels = stockDataGlobal[0]?.chartData.map(d => d.date) || []
 
+    // Check if dark theme is active
+    const isDarkTheme = document.body.classList.contains('dark-theme')
+    const legendColor = isDarkTheme ? '#ffffff' : '#1e293b'
+    const gridColor = isDarkTheme ? 'rgba(255, 255, 255, 0.2)' : 'rgba(102, 126, 234, 0.15)'
+    const tickColor = isDarkTheme ? '#ffffff' : '#334155'
+
     chartInstance = new Chart(ctx, {
         type: 'line',
         data: {
@@ -578,7 +679,7 @@ function renderChart() {
             plugins: {
                 legend: {
                     labels: {
-                        color: '#e2e8f0',
+                        color: legendColor,
                         font: {
                             size: 14,
                             weight: 600
@@ -598,27 +699,33 @@ function renderChart() {
             scales: {
                 y: {
                     ticks: {
-                        color: '#94a3b8',
+                        color: tickColor,
                         callback: function(value) {
                             return '$' + value.toFixed(2)
                         }
                     },
                     grid: {
-                        color: 'rgba(148, 163, 184, 0.1)'
+                        color: gridColor
                     }
                 },
                 x: {
                     ticks: {
-                        color: '#94a3b8'
+                        color: tickColor
                     },
                     grid: {
-                        color: 'rgba(148, 163, 184, 0.1)'
+                        color: gridColor
                     }
                 }
             }
         }
     })
 }
+
+window.addEventListener('themeChanged', () => {
+    if (chartInstance && stockDataGlobal.length > 0) {
+        renderChart()
+    }
+})
 const newReportBtn = document.querySelector('.new-report-btn')
 
 if (newReportBtn) {

@@ -313,7 +313,15 @@ function addChartMessage(metrics) {
     messagesContainer.appendChild(messageDiv);
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
-    setTimeout(() => createChart(chartId, metrics), 100);
+    setTimeout(() => {
+        const chart = createChart(chartId, metrics);
+        if (chart) {
+            window.addEventListener('themeChanged', () => {
+                chart.destroy();
+                createChart(chartId, metrics);
+            });
+        }
+    }, 100);
 }
 
 function createChart(chartId, metrics) {
@@ -335,8 +343,12 @@ function createChart(chartId, metrics) {
             return;
         }
 
+        const isDarkTheme = document.body.classList.contains('dark-theme');
+        const textColor = isDarkTheme ? '#e2e8f0' : '#0f172a';
+        const gridColor = isDarkTheme ? 'rgba(255, 255, 255, 0.1)' : 'rgba(102, 126, 234, 0.15)';
+
         // Create area chart showing price range
-        new Chart(ctx, {
+        const chart = new Chart(ctx, {
             type: 'line',
             data: {
                 labels: ['Year Low', 'Current', 'Year High'],
@@ -366,26 +378,36 @@ function createChart(chartId, metrics) {
                 responsive: true,
                 maintainAspectRatio: true,
                 plugins: {
-                    legend: { display: true },
+                    legend: { 
+                        display: true,
+                        labels: { color: textColor }
+                    },
                     title: {
                         display: true,
                         text: 'Stock Price Analysis',
                         font: { size: 16, weight: 'bold' },
-                        color: '#0f172a'
+                        color: textColor
                     }
                 },
                 scales: {
                     y: {
                         beginAtZero: false,
                         ticks: {
+                            color: textColor,
                             callback: (value) => '$' + value.toFixed(2)
-                        }
+                        },
+                        grid: { color: gridColor }
+                    },
+                    x: {
+                        ticks: { color: textColor },
+                        grid: { color: gridColor }
                     }
                 }
             }
         });
 
         console.log('Chart created');
+        return chart;
     }
 }
 
@@ -551,7 +573,7 @@ function addMessage(text, type) {
     const messageDiv = document.createElement('div');
     messageDiv.className = `message ${type}-message`;
 
-    const avatar = type === 'user' ? '👤' : '🤖';
+    const avatar = type === 'user' ? '👤' : '<img src="/images/chatbot.png" alt="AI" width="32" height="32" />';
 
     // Format the text: convert markdown-style formatting to HTML
     const formattedText = formatMessageText(text);
@@ -568,6 +590,9 @@ function addMessage(text, type) {
 }
 
 function formatMessageText(text) {
+    // Decode HTML entities
+    text = text.replace(/&#39;/g, "'").replace(/&quot;/g, '"').replace(/&amp;/g, '&');
+
     // Remove ** markdown bold syntax and replace with <strong>
     text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
 
@@ -614,7 +639,7 @@ function addTypingIndicator() {
     typingDiv.className = 'message bot-message';
 
     typingDiv.innerHTML = `
-        <div class="message-avatar">🤖</div>
+        <div class="message-avatar"><img src="/images/chatbot.png" alt="AI" width="32" height="32" /></div>
         <div class="message-content">
             <div class="typing-indicator">
                 <div class="typing-dot"></div>

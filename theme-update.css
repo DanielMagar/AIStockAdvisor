@@ -1,0 +1,243 @@
+/* Modern Purple/Blue Gradient Theme - Override */
+
+body {
+  background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 25%, #e9d5ff 50%, #f3e8ff 75%, #faf5ff 100%);
+}
+
+.app-header {
+  background: rgba(255, 255, 255, 0.95);
+  border-bottom: 1px solid rgba(102, 126, 234, 0.3);
+}
+
+.subtitle {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.nav-links a:hover,
+.nav-links a.active {
+  color: #667eea;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+}
+
+.card {
+  border: 1px solid rgba(102, 126, 234, 0.3);
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.card:hover {
+  border-color: rgba(102, 126, 234, 0.5);
+  box-shadow: 0 12px 40px rgba(102, 126, 234, 0.2);
+}
+
+.stock-examples {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.08), rgba(118, 75, 162, 0.08));
+  border: 1px solid rgba(102, 126, 234, 0.3);
+}
+
+.chip {
+  border: 2px solid rgba(102, 126, 234, 0.4);
+  color: #764ba2;
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.chip:hover {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: #fff;
+  border-color: #667eea;
+  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.5);
+}
+
+#ticker-input {
+  border: 2px solid rgba(102, 126, 234, 0.3);
+}
+
+#ticker-input:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+}
+
+.add-ticker-btn,
+.generate-report-btn {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.add-ticker-btn:hover,
+.generate-report-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #764ba2, #667eea);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+}
+
+.ticker-choice-display {
+  border: 2px dashed rgba(102, 126, 234, 0.5);
+  color: #764ba2;
+}
+
+.loading-panel {
+  color: #667eea;
+}
+
+.spinner {
+  border: 3px solid rgba(102, 126, 234, 0.2);
+  border-top-color: #667eea;
+}
+
+.help-btn {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.15), rgba(118, 75, 162, 0.15));
+  border: 1px solid rgba(102, 126, 234, 0.4);
+  color: #667eea;
+}
+
+.help-content h3 {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.doc-upload-section {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.08), rgba(118, 75, 162, 0.08));
+  border: 1px solid rgba(102, 126, 234, 0.3);
+}
+
+.doc-icon {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.doc-upload-area {
+  border: 2px dashed rgba(102, 126, 234, 0.4);
+}
+
+.doc-upload-area:hover {
+  border-color: #667eea;
+  background: rgba(102, 126, 234, 0.1);
+}
+
+.upload-placeholder svg,
+.file-info svg {
+  color: #667eea;
+}
+
+.upload-link {
+  color: #667eea;
+}
+
+.uploaded-file-display {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.15), rgba(118, 75, 162, 0.15));
+}
+
+.file-info {
+  color: #764ba2;
+}
+
+.toggle-switch input:checked + .toggle-slider {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+}
+
+.new-report-btn {
+  border: 2px solid rgba(102, 126, 234, 0.4);
+  color: #667eea;
+}
+
+.new-report-btn:hover {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.15), rgba(118, 75, 162, 0.15));
+  border-color: #667eea;
+}
+
+.app-footer {
+  border-top: 1px solid rgba(102, 126, 234, 0.2);
+}
+
+.highlight-buy {
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+}
+
+.report-card.buy {
+  border-left: 5px solid #10b981;
+}
+
+.verdict-badge.buy {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+  border-color: #10b981;
+}
+
+.charts-container {
+  border: 1px solid rgba(102, 126, 234, 0.3);
+}
+
+.report-card {
+  border: 1px solid rgba(102, 126, 234, 0.3);
+}
+
+/* Stocks page specific */
+.stock-card {
+  border: 1px solid rgba(102, 126, 234, 0.3);
+}
+
+.stock-card:hover {
+  border-color: rgba(102, 126, 234, 0.5);
+  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.2);
+}
+
+/* Chat page specific */
+.chat-container {
+  border: 1px solid rgba(102, 126, 234, 0.3);
+}
+
+#send-btn,
+#attach-btn {
+  background: linear-gradient(135deg, #667eea, #764ba2) !important;
+}
+
+#send-btn:hover,
+#attach-btn:hover {
+  background: linear-gradient(135deg, #764ba2, #667eea) !important;
+}
+
+#chat-input {
+  border: 2px solid rgba(102, 126, 234, 0.3) !important;
+}
+
+#chat-input:focus {
+  border-color: #667eea !important;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15) !important;
+}
+
+.user-message {
+  background: transparent !important;
+}
+
+.user-message .message-content {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.15), rgba(118, 75, 162, 0.15)) !important;
+  border-color: rgba(102, 126, 234, 0.4) !important;
+}
+.user-message {
+  background: transparent !important;
+}
+
+.user-message .message-content {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.15), rgba(118, 75, 162, 0.15)) !important;
+  border-color: rgba(102, 126, 234, 0.4) !important;
+}
+.user-message {
+  background: transparent !important;
+}
+
+.user-message .message-content {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.15), rgba(118, 75, 162, 0.15)) !important;
+  border-color: rgba(102, 126, 234, 0.4) !important;
+}
+
+.nav-links a {
+  border-bottom: 1px solid rgba(102, 126, 234, 0.1) !important;
+}
+.chat-container { border: none !important; }

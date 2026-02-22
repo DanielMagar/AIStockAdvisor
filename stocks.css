@@ -19,13 +19,13 @@
 }
 
 .nav-links a:hover {
-  color: #10b981;
-  background: rgba(16, 185, 129, 0.1);
+  color: #6366f1;
+  background: rgba(102, 126, 234, 0.1);
 }
 
 .nav-links a.active {
-  color: #10b981;
-  background: rgba(16, 185, 129, 0.15);
+  color: #6366f1;
+  background: rgba(102, 126, 234, 0.15);
 }
 
 .brand {
@@ -61,7 +61,7 @@
 .results-count {
   margin: 0 0 8px 0;
   font-size: 0.95rem;
-  color: #059669;
+  color: #4f46e5;
   font-weight: 700;
 }
 
@@ -80,7 +80,7 @@
   flex: 1;
   padding: 16px 20px;
   border-radius: 12px;
-  border: 2px solid rgba(16, 185, 129, 0.2);
+  border: 2px solid rgba(102, 126, 234, 0.2);
   font-size: 1rem;
   background: rgba(255, 255, 255, 0.8);
   color: #0f172a;
@@ -95,15 +95,15 @@
 
 #stock-search:focus {
   outline: none;
-  border-color: #10b981;
-  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
   background: rgba(255, 255, 255, 0.95);
 }
 
 #sector-filter {
   padding: 16px 20px;
   border-radius: 12px;
-  border: 2px solid rgba(16, 185, 129, 0.2);
+  border: 2px solid rgba(102, 126, 234, 0.2);
   font-size: 1rem;
   background: rgba(255, 255, 255, 0.8);
   color: #0f172a;
@@ -116,7 +116,7 @@
 
 #sector-filter:focus {
   outline: none;
-  border-color: #10b981;
+  border-color: #6366f1;
 }
 
 /* =========================
@@ -134,7 +134,7 @@
   background: rgba(255, 255, 255, 0.7);
   border-radius: 16px;
   padding: 24px;
-  border: 1px solid rgba(16, 185, 129, 0.2);
+  border: 1px solid rgba(102, 126, 234, 0.2);
   transition: all 0.3s ease;
   cursor: pointer;
   position: relative;
@@ -150,15 +150,15 @@
   left: 0;
   width: 4px;
   height: 100%;
-  background: linear-gradient(180deg, #10b981, #059669);
+  background: linear-gradient(180deg, #6366f1, #4f46e5);
   transform: scaleY(0);
   transition: transform 0.3s ease;
 }
 
 .stock-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 40px rgba(16, 185, 129, 0.2);
-  border-color: #10b981;
+  box-shadow: 0 12px 40px rgba(102, 126, 234, 0.2);
+  border-color: #6366f1;
   background: rgba(255, 255, 255, 0.9);
 }
 
@@ -176,7 +176,7 @@
 .stock-ticker {
   font-size: 1.5rem;
   font-weight: 800;
-  color: #059669;
+  color: #4f46e5;
   letter-spacing: 0.5px;
 }
 
@@ -184,8 +184,8 @@
   font-size: 0.75rem;
   padding: 4px 10px;
   border-radius: 12px;
-  background: rgba(16, 185, 129, 0.15);
-  color: #10b981;
+  background: rgba(102, 126, 234, 0.15);
+  color: #6366f1;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -210,7 +210,7 @@
   justify-content: space-between;
   align-items: center;
   padding-top: 16px;
-  border-top: 1px solid rgba(16, 185, 129, 0.1);
+  border-top: 1px solid rgba(102, 126, 234, 0.1);
 }
 
 .stock-market {
@@ -223,7 +223,7 @@
   padding: 8px 16px;
   border-radius: 8px;
   border: none;
-  background: linear-gradient(135deg, #10b981, #059669);
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
   color: #fff;
   font-weight: 700;
   font-size: 0.85rem;
@@ -233,7 +233,7 @@
 
 .analyze-btn:hover {
   transform: scale(1.05);
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
 }
 
 /* =========================
