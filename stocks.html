@@ -44,7 +44,7 @@
 				<a href="/chat.html">AI Chat</a>
 			</nav>
 			<button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme" title="Toggle dark mode">
-				<img src="/images/icons8-crescent-moon-96.png" alt="Toggle theme" class="theme-icon" width="24" height="24" />
+				<img src="./images/icons8-crescent-moon-96.png" alt="Toggle theme" class="theme-icon" width="24" height="24" />
 			</button>
 			<button class="hamburger" id="hamburger" aria-label="Menu">
 				<span></span>
@@ -62,7 +62,7 @@
 					<h1>📚 Top 100 US Stocks</h1>
 					<p class="hero-subtitle">Explore America's most traded companies by sector</p>
 				</div>
-				<img src="/images/stocks3.png" alt="Stock Analysis" style="width: 120px; height: auto; opacity: 0.9;" />
+				<img src="./images/stocks3.png" alt="Stock Analysis" style="width: 120px; height: auto; opacity: 0.9;" />
 			</div>
 			</div>
 			
@@ -100,13 +100,13 @@
 		const savedTheme = localStorage.getItem('theme');
 		if (savedTheme === 'dark') {
 			document.body.classList.add('dark-theme');
-			if (themeIcon) themeIcon.src = '/images/icons8-sun-96.png';
+			if (themeIcon) themeIcon.src = './images/icons8-sun-96.png';
 			themeToggle.title = 'Toggle light mode';
 		}
 		themeToggle?.addEventListener('click', () => {
 			document.body.classList.toggle('dark-theme');
 			const isDark = document.body.classList.contains('dark-theme');
-			if (themeIcon) themeIcon.src = isDark ? '/images/icons8-sun-96.png' : '/images/icons8-crescent-moon-96.png';
+			if (themeIcon) themeIcon.src = isDark ? './images/icons8-sun-96.png' : './images/icons8-crescent-moon-96.png';
 			themeToggle.title = isDark ? 'Toggle light mode' : 'Toggle dark mode';
 			localStorage.setItem('theme', isDark ? 'dark' : 'light');
 		});

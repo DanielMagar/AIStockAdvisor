@@ -39,7 +39,7 @@
 				<a href="/chat.html" class="active">AI Chat</a>
 			</nav>
 			<button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme" title="Toggle dark mode">
-				<img src="/images/icons8-crescent-moon-96.png" alt="Toggle theme" class="theme-icon" width="24" height="24" />
+				<img src="./images/icons8-crescent-moon-96.png" alt="Toggle theme" class="theme-icon" width="24" height="24" />
 			</button>
 			<button class="hamburger" id="hamburger" aria-label="Menu">
 				<span></span>
@@ -52,18 +52,18 @@
 	<main class="chat-container">
 		<div class="chat-header">
 			<div style="display: flex; align-items: center; gap: 16px; justify-content: center;">
-				<img src="/images/stocks4.png" alt="Chat" style="width: 80px; height: auto; opacity: 0.9;" />
+				<img src="./images/stocks4.png" alt="Chat" style="width: 80px; height: auto; opacity: 0.9;" />
 				<div>
 					<h2>💬 AI Stock Chat Assistant</h2>
 					<p>Ask questions about stocks or upload financial documents for analysis</p>
 				</div>
-				<img src="/images/stocks6.png" alt="Analysis" style="width: 80px; height: auto; opacity: 0.9;" />
+				<img src="./images/stocks6.png" alt="Analysis" style="width: 80px; height: auto; opacity: 0.9;" />
 			</div>
 		</div>
 
 		<div class="chat-messages" id="chat-messages">
 			<div class="message bot-message">
-				<div class="message-avatar"><img src="/images/chatbot.png" alt="AI" width="32" height="32" /></div>
+				<div class="message-avatar"><img src="./images/chatbot.png" alt="AI" width="32" height="32" /></div>
 				<div class="message-content">
 					<p>Hello! I'm your AI Stock Assistant. I can help you with:</p>
 					<ul>
@@ -108,13 +108,13 @@
 		const savedTheme = localStorage.getItem('theme');
 		if (savedTheme === 'dark') {
 			document.body.classList.add('dark-theme');
-			if (themeIcon) themeIcon.src = '/images/icons8-sun-96.png';
+			if (themeIcon) themeIcon.src = './images/icons8-sun-96.png';
 			themeToggle.title = 'Toggle light mode';
 		}
 		themeToggle?.addEventListener('click', () => {
 			document.body.classList.toggle('dark-theme');
 			const isDark = document.body.classList.contains('dark-theme');
-			if (themeIcon) themeIcon.src = isDark ? '/images/icons8-sun-96.png' : '/images/icons8-crescent-moon-96.png';
+			if (themeIcon) themeIcon.src = isDark ? './images/icons8-sun-96.png' : './images/icons8-crescent-moon-96.png';
 			themeToggle.title = isDark ? 'Toggle light mode' : 'Toggle dark mode';
 			localStorage.setItem('theme', isDark ? 'dark' : 'light');
 			window.dispatchEvent(new Event('themeChanged'));

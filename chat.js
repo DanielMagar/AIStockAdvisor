@@ -573,7 +573,7 @@ function addMessage(text, type) {
     const messageDiv = document.createElement('div');
     messageDiv.className = `message ${type}-message`;
 
-    const avatar = type === 'user' ? '👤' : '<img src="/images/chatbot.png" alt="AI" width="32" height="32" />';
+    const avatar = type === 'user' ? '👤' : '<img src="./images/chatbot.png" alt="AI" width="32" height="32" />';
 
     // Format the text: convert markdown-style formatting to HTML
     const formattedText = formatMessageText(text);
@@ -639,7 +639,7 @@ function addTypingIndicator() {
     typingDiv.className = 'message bot-message';
 
     typingDiv.innerHTML = `
-        <div class="message-avatar"><img src="/images/chatbot.png" alt="AI" width="32" height="32" /></div>
+        <div class="message-avatar"><img src="./images/chatbot.png" alt="AI" width="32" height="32" /></div>
         <div class="message-content">
             <div class="typing-indicator">
                 <div class="typing-dot"></div>
