@@ -122,9 +122,14 @@ async function sendMessage() {
         removeTypingIndicator(typingId);
         addMessage(response, 'bot');
 
-        // Only try to add chart if not an acknowledgment and document exists
-        const isAcknowledgment = /^(thanks?|thank you|ok|okay|got it|alright|cool|great|nice|perfect|awesome|appreciate it)\s*(thanks?|thank you)?[!.]*$/i.test(input.trim());
-        if (lastDocumentText && !isAcknowledgment) {
+        // Only try to add chart if not an acknowledgment
+        const isAcknowledgment = /^(thanks?|thank you|ok|okay|got it|alright|cool|great|nice|perfect|awesome|appreciate it|you'?re welcome|welcome|good job|well done|excellent|amazing|fantastic|wonderful|brilliant|you'?re (great|awesome|amazing|the best|good|helpful)|that'?s (great|awesome|perfect|helpful|good))\.?\s*(thanks?|thank you)?[!.]*$/i.test(input.trim());
+        
+        // For new document uploads, always try to generate chart from the new document
+        if (uploadedFile && lastDocumentText && !isAcknowledgment) {
+            tryAddChart(lastDocumentText, response);
+        } else if (!uploadedFile && lastDocumentText && !isAcknowledgment) {
+            // For follow-up questions, use existing document
             tryAddChart(lastDocumentText, response);
         }
 
@@ -156,13 +161,25 @@ async function sendChatQuery(message) {
         content: message
     });
 
-    // Check if message is just acknowledgment/thanks
-    const isAcknowledgment = /^(thanks?|thank you|ok|okay|got it|alright|cool|great|nice|perfect|awesome|appreciate it|you'?re welcome|welcome)\s*(thanks?|thank you)?[!.]*$/i.test(message.trim());
+    // Check if message is just acknowledgment/thanks/praise
+    const isAcknowledgment = /^(thanks?|thank you|ok|okay|got it|alright|cool|great|nice|perfect|awesome|appreciate it|you'?re welcome|welcome|good job|well done|excellent|amazing|fantastic|wonderful|brilliant|you'?re (great|awesome|amazing|the best|good|helpful)|that'?s (great|awesome|perfect|helpful|good))\.?\s*(thanks?|thank you)?[!.]*$/i.test(message.trim());
 
     if (isAcknowledgment) {
         const response = message.toLowerCase().includes('welcome')
             ? "Happy to help! Let me know if you need anything else about stocks or markets."
             : "You're welcome! Feel free to ask if you have any other questions about stocks or need further analysis.";
+        conversationHistory.push({
+            role: 'assistant',
+            content: response
+        });
+        return response;
+    }
+
+    // Check if message is a greeting
+    const isGreeting = /^(hi|hello|hey|greetings|good morning|good afternoon|good evening)\.?[!]*$/i.test(message.trim());
+
+    if (isGreeting) {
+        const response = "Hello! I'm your AI Stock Market Assistant. I can help you analyze stocks, review financial documents, and provide investment insights. What would you like to know about the stock market today?";
         conversationHistory.push({
             role: 'assistant',
             content: response
@@ -189,44 +206,9 @@ Provide a specific answer based on the document data above. Include actual numbe
     const messages = [
         {
             role: 'system',
-            content: `
-You are an enterprise-grade Financial Analysis AI.
-
-DOMAIN RESTRICTION:
-- Only respond to stock market, equity, or macroeconomic related queries.
-- If the query is unrelated, return:
-{
-  "error": "This AI system only supports stock market related queries."
-}
-
-ANALYSIS LOGIC:
-- If financial data is provided, perform structured data-driven analysis.
-- If no financial data is provided, use your financial knowledge to give a general analytical assessment of the company, including business model strength, competitive position, industry outlook, and historical performance trends.
-- Clearly distinguish between data-based analysis and general knowledge-based analysis.
-
-RULES:
-- Do not fabricate real-time prices.
-- Do not invent specific financial numbers unless provided.
-- If real-time data is required but not provided, state:
-  "Real-time financial data not provided. Analysis based on general financial knowledge."
-
-RESPONSE REQUIREMENTS:
-- Provide valuation insight (if possible).
-- Provide risk assessment.
-- Provide short-term outlook.
-- Provide long-term outlook.
-- Provide investment signal (Buy / Hold / Sell).
-- Provide confidence score (0-100).
-
-OUTPUT:
-- Always return valid JSON.
-- No text outside JSON.
-`
+            content: `You are an enterprise-grade Financial Analysis AI. Only respond to stock market queries. If unrelated, return: {"error": "This AI system only supports stock market related queries."}`
         },
-        {
-            role: 'user',
-            content: fullQuestion
-        }
+        ...conversationHistory.slice(-10)
     ];
 
     const response = await fetch('https://openai-api-worker.magar-t-daniel.workers.dev/', {
@@ -243,6 +225,19 @@ OUTPUT:
 
     const text = await response.text();
 
+    // Check if response is an error from the AI system
+    try {
+        const parsed = JSON.parse(text);
+        if (parsed.error) {
+            throw new Error(parsed.error);
+        }
+    } catch (e) {
+        // Not JSON or no error field, continue with text response
+        if (e.message.includes('This AI system only supports')) {
+            throw e; // Re-throw if it's our domain restriction error
+        }
+    }
+
     conversationHistory.push({
         role: 'assistant',
         content: text
@@ -253,10 +248,14 @@ OUTPUT:
 
 // Try to extract and visualize financial data
 function tryAddChart(documentText, aiResponse) {
+    console.log('tryAddChart called with document length:', documentText?.length);
     const metrics = extractFinancialMetrics(documentText);
+    console.log('Extracted metrics:', metrics);
 
     if (metrics && (metrics.revenue || metrics.prices)) {
         addChartMessage(metrics);
+    } else {
+        console.log('No metrics found to chart');
     }
 }
 

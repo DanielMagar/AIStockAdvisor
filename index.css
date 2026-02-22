@@ -55,7 +55,7 @@ body {
 }
 
 .hamburger.active span:nth-child(1) {
-  transform: rotate(45deg) translate(8px, 8px);
+  transform: rotate(45deg) translate(5px, 5px);
 }
 
 .hamburger.active span:nth-child(2) {
@@ -63,7 +63,7 @@ body {
 }
 
 .hamburger.active span:nth-child(3) {
-  transform: rotate(-45deg) translate(7px, -7px);
+  transform: rotate(-45deg) translate(7px, -6px);
 }
 
 .nav-links {
@@ -916,6 +916,15 @@ body {
 
   .container {
     padding: 0 20px;
+    margin: 30px auto;
+  }
+
+  .card {
+    padding: 20px;
+  }
+
+  .panel-header h1 {
+    font-size: 1.4rem;
   }
 
   .ticker-form {
@@ -926,6 +935,10 @@ body {
     width: 100%;
   }
 
+  .stock-examples {
+    padding: 16px;
+  }
+
   .stock-chips {
     gap: 6px;
   }
@@ -933,6 +946,23 @@ body {
   .chip {
     font-size: 0.75rem;
     padding: 6px 10px;
+  }
+
+  .generate-report-btn {
+    position: sticky;
+    bottom: 20px;
+    z-index: 50;
+    box-shadow: 0 -4px 20px rgba(16, 185, 129, 0.3), 0 6px 20px rgba(16, 185, 129, 0.3);
+    margin-top: 20px;
+  }
+
+  .doc-upload-section {
+    padding: 16px;
+    margin-top: 20px;
+  }
+
+  .doc-upload-area {
+    padding: 20px;
   }
 
   .report-content {
@@ -956,6 +986,7 @@ body {
     right: 10px;
     left: 10px;
     max-width: none;
+    top: 70px;
   }
 }
 
