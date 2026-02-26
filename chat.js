@@ -187,29 +187,25 @@ async function sendChatQuery(message) {
         return response;
     }
 
-    // If we have a document in context, include it
-    let fullQuestion;
-    if (lastDocumentText) {
-        fullQuestion = `Previous context: I have analyzed this financial document:
-
-${lastDocumentText}
-
----
-
-User's follow-up question: ${message}
-
-Provide a specific answer based on the document data above. Include actual numbers and recommendations from the document.`;
-    } else {
-        fullQuestion = `You are a stock market AI assistant. ${message}`;
-    }
-
-    const messages = [
+    let messages = [
         {
             role: 'system',
             content: `You are an enterprise-grade Financial Analysis AI. Only respond to stock market queries. If unrelated, return: {"error": "This AI system only supports stock market related queries."}`
         },
         ...conversationHistory.slice(-10)
     ];
+
+    if (lastDocumentText) {
+        messages.unshift({
+            role: 'system',
+            content: `I have analyzed this financial document:\n\n${lastDocumentText}\n\nProvide a specific answer based on the document data above. Include actual numbers and recommendations from the document.`
+        });
+    } else {
+        messages.unshift({
+            role: 'system',
+            content: `You are a stock market AI assistant.`
+        });
+    }
 
     const response = await fetch('https://openai-api-worker.magar-t-daniel.workers.dev/', {
         method: 'POST',
