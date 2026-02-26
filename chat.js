@@ -190,7 +190,8 @@ async function sendChatQuery(message) {
     let messages = [
         {
             role: 'system',
-            content: `You are an enterprise-grade Financial Analysis AI. Only respond to stock market queries. If unrelated, return: {"error": "This AI system only supports stock market related queries."}`
+                    
+                    content: 'You are an AI trained to be a stock market analyst. Your purpose is to help users with their stock market queries. You should be able to answer questions about stock prices, market trends, and investment analysis. You should also be able to provide recommendations on whether to buy, sell, or hold a stock. If the user asks a question that is not related to the stock market, you should politely decline to answer.'
         },
         ...conversationHistory.slice(-10)
     ];
@@ -203,7 +204,7 @@ async function sendChatQuery(message) {
     } else {
         messages.unshift({
             role: 'system',
-            content: `You are a stock market AI assistant.`
+            content: `You are a stock market AI expert assistant. Your purpose is to help users with their stock market queries. You should be able to answer questions about stock prices, market trends, and investment analysis. You should also be able to provide recommendations on whether to buy, sell, or hold a stock. If the user asks a question that is not related to the stock market, you should politely decline to answer.`
         });
     }
 
@@ -430,7 +431,7 @@ async function analyzeDocument(file, query = '') {
         const validationMessages = [
             {
                 role: 'system',
-                content: 'You are a specialized financial validator. Analyze the following text. If it is related to stocks, company financials, market analysis, or investing, reply with "VALID". If it is about anything else (cooking, travel, general news, etc.), reply with "INVALID". Do not provide any other text.'
+                content: 'You are a specialized financial validator. Analyze the following text. If it is related to stocks, company financials, market analysis, or investing, reply with "VALID". If it is about anything else (cooking, travel, general news, etc.), reply with "INVALID".'
             },
             {
                 role: 'user',
