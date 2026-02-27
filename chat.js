@@ -2110,8 +2110,8 @@ document.querySelectorAll('.prompt-chip').forEach((chip) => {
     renderBeginnerStep();
     setChatToolsOpen(localStorage.getItem(CHAT_TOOLS_OPEN_KEY) === 'on');
     setBeginnerMode(localStorage.getItem(BEGINNER_MODE_KEY) === 'on');
-    const savedGuideOpen = localStorage.getItem(CHAT_GUIDE_OPEN_KEY);
-    setGuideRailOpen(savedGuideOpen === null ? true : savedGuideOpen === 'on', false);
+    localStorage.setItem(CHAT_GUIDE_OPEN_KEY, 'off');
+    setGuideRailOpen(false, false);
 
     guideRailToggle?.addEventListener('click', () => {
         const isOpen = !chatShell?.classList.contains('left-rail-collapsed');
@@ -2129,9 +2129,7 @@ document.querySelectorAll('.prompt-chip').forEach((chip) => {
     });
 
     window.addEventListener('resize', () => {
-        const saved = localStorage.getItem(CHAT_GUIDE_OPEN_KEY);
-        const open = saved === null ? true : saved === 'on';
-        setGuideRailOpen(open, false);
+        setGuideRailOpen(false, false);
         if (window.matchMedia('(min-width: 1025px)').matches) {
             setMobileRailPanels('none');
         }

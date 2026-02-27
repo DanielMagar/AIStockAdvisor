@@ -1154,8 +1154,8 @@ function initHomeGuideRailToggle() {
         }
     }
 
-    const savedGuideOpen = localStorage.getItem(HOME_GUIDE_OPEN_KEY)
-    setGuideOpen(savedGuideOpen === null ? true : savedGuideOpen === 'on', false)
+    localStorage.setItem(HOME_GUIDE_OPEN_KEY, 'off')
+    setGuideOpen(false, false)
 
     toggleBtn.addEventListener('click', () => {
         const isOpen = !workspace.classList.contains('guide-collapsed')
@@ -1196,9 +1196,7 @@ function initHomeGuideRailToggle() {
     })
 
     window.addEventListener('resize', () => {
-        const saved = localStorage.getItem(HOME_GUIDE_OPEN_KEY)
-        const open = saved === null ? true : saved === 'on'
-        setGuideOpen(open, false)
+        setGuideOpen(false, false)
         if (window.matchMedia('(min-width: 1025px)').matches) {
             setMobilePanels('none')
         }

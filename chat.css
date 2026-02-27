@@ -32,15 +32,15 @@
   --badge-border: rgba(37, 99, 235, 0.3);
   --badge-text: #1d4ed8;
   --sidebar-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(246, 250, 255, 0.95));
-  max-width: 1440px;
+  max-width: 1520px;
   margin: 20px auto 0;
-  padding: 0 30px;
+  padding: 0 24px;
 }
 
 .app-header .brand {
-  max-width: 1440px;
-  padding-left: 30px;
-  padding-right: 30px;
+  max-width: 1520px;
+  padding-left: 24px;
+  padding-right: 24px;
 }
 
 body.dark-theme .chat-page {
@@ -1452,14 +1452,14 @@ body.dark-theme .news-side-meta {
 
 @media (min-width: 1440px) {
   .chat-page {
-    max-width: 1600px;
-    padding: 0 30px;
+    max-width: 1700px;
+    padding: 0 24px;
   }
 
   .app-header .brand {
-    max-width: 1600px;
-    padding-left: 30px;
-    padding-right: 30px;
+    max-width: 1700px;
+    padding-left: 24px;
+    padding-right: 24px;
   }
 
   .chat-shell {
@@ -1474,14 +1474,14 @@ body.dark-theme .news-side-meta {
 
 @media (min-width: 1920px) {
   .chat-page {
-    max-width: 1820px;
-    padding: 0 30px;
+    max-width: 1880px;
+    padding: 0 24px;
   }
 
   .app-header .brand {
-    max-width: 1820px;
-    padding-left: 30px;
-    padding-right: 30px;
+    max-width: 1880px;
+    padding-left: 24px;
+    padding-right: 24px;
   }
 
   .chat-shell {
