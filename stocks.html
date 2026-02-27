@@ -3,7 +3,7 @@
 
 <head>
 	<meta charset="UTF-8" />
-	<title>Browse US Stocks – AI Stock Advisor</title>
+	<title>Browse US & Indian Stocks – AI Stock Advisor</title>
 
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.css" />
 
@@ -35,13 +35,14 @@
 				</svg>
 				<div>
 					<h1 class="brand-title">AI Stock Advisor</h1>
-					<span class="subtitle">US Market Predictions</span>
+					<span class="subtitle">US & India Market Predictions</span>
 				</div>
 			</div>
 			<nav class="nav-links">
 				<a href="/">Stock Analysis</a>
 				<a href="/stocks.html" class="active">Browse Stocks</a>
 				<a href="/chat.html">AI Chat</a>
+				<a href="/beginners.html">Learn Basics</a>
 			</nav>
 			<button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme" title="Toggle dark mode">
 				<img src="/images/icons8-crescent-moon-96.png" alt="Toggle theme" class="theme-icon" width="24" height="24" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';" />
@@ -58,27 +59,75 @@
 	<!-- MAIN -->
 	<main class="container">
 		<section class="stocks-hero">
-			<div style="display: flex; align-items: center; gap: 24px; justify-content: center; flex-wrap: wrap;">
-				<div style="text-align: center;">
-					<h1>📚 Top 100 US Stocks</h1>
-					<p class="hero-subtitle">Explore America's most traded companies by sector</p>
+			<div class="stocks-hero-row">
+				<div class="stocks-hero-copy">
+					<h1>📚 Top US & Indian Stocks</h1>
+					<p class="hero-subtitle">Explore popular US and NSE companies by sector and market</p>
 				</div>
-				<img src="/images/stocks3.png" alt="Stock Analysis" style="width: 120px; height: auto; opacity: 0.9;" />
+				<img src="/images/stocks3.png" alt="Stock Analysis" class="stocks-hero-image" />
 			</div>
+
+			<div class="chat-spotlight">
+				<div class="chat-spotlight-content">
+					<p class="chat-spotlight-kicker">AI Copilot</p>
+					<h3>Need fast stock reasoning? Jump into AI Chat</h3>
+					<p>Compare stocks, ask beginner questions, and get buy/hold/sell context in one place.</p>
+				</div>
+				<a class="chat-spotlight-btn" href="/chat.html">Open AI Chat</a>
 			</div>
 			
 			<div class="search-filter">
 				<input type="text" id="stock-search" placeholder="🔍 Search by ticker or company name..." />
-				<select id="sector-filter">
-					<option value="all">All Sectors</option>
-					<option value="technology">Technology</option>
-					<option value="finance">Finance</option>
-					<option value="healthcare">Healthcare</option>
-					<option value="consumer">Consumer</option>
-					<option value="energy">Energy</option>
-					<option value="industrial">Industrial</option>
-					<option value="telecom">Telecom</option>
-				</select>
+				<div class="stock-filter-dropdown" id="market-dropdown">
+					<button type="button" class="stock-dropdown-toggle" id="market-dropdown-toggle" aria-expanded="false">
+						<span id="market-dropdown-label">All Markets</span>
+						<span class="stock-dropdown-caret" aria-hidden="true">
+							<svg viewBox="0 0 20 20" width="16" height="16" focusable="false" aria-hidden="true">
+								<path d="M5 8l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+							</svg>
+						</span>
+					</button>
+					<div class="stock-dropdown-menu" id="market-dropdown-menu" style="display: none;">
+						<button type="button" class="stock-dropdown-option is-selected" data-value="all" data-label="All Markets">All Markets</button>
+						<button type="button" class="stock-dropdown-option" data-value="US" data-label="US">US</button>
+						<button type="button" class="stock-dropdown-option" data-value="NSE" data-label="India (NSE)">India (NSE)</button>
+					</div>
+					<select id="market-filter" class="stock-filter-native" aria-hidden="true" tabindex="-1">
+						<option value="all" selected>All Markets</option>
+						<option value="US">US</option>
+						<option value="NSE">India (NSE)</option>
+					</select>
+				</div>
+				<div class="stock-filter-dropdown" id="sector-dropdown">
+					<button type="button" class="stock-dropdown-toggle" id="sector-dropdown-toggle" aria-expanded="false">
+						<span id="sector-dropdown-label">All Sectors</span>
+						<span class="stock-dropdown-caret" aria-hidden="true">
+							<svg viewBox="0 0 20 20" width="16" height="16" focusable="false" aria-hidden="true">
+								<path d="M5 8l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+							</svg>
+						</span>
+					</button>
+					<div class="stock-dropdown-menu" id="sector-dropdown-menu" style="display: none;">
+						<button type="button" class="stock-dropdown-option is-selected" data-value="all" data-label="All Sectors">All Sectors</button>
+						<button type="button" class="stock-dropdown-option" data-value="technology" data-label="Technology">Technology</button>
+						<button type="button" class="stock-dropdown-option" data-value="finance" data-label="Finance">Finance</button>
+						<button type="button" class="stock-dropdown-option" data-value="healthcare" data-label="Healthcare">Healthcare</button>
+						<button type="button" class="stock-dropdown-option" data-value="consumer" data-label="Consumer">Consumer</button>
+						<button type="button" class="stock-dropdown-option" data-value="energy" data-label="Energy">Energy</button>
+						<button type="button" class="stock-dropdown-option" data-value="industrial" data-label="Industrial">Industrial</button>
+						<button type="button" class="stock-dropdown-option" data-value="telecom" data-label="Telecom">Telecom</button>
+					</div>
+					<select id="sector-filter" class="stock-filter-native" aria-hidden="true" tabindex="-1">
+						<option value="all" selected>All Sectors</option>
+						<option value="technology">Technology</option>
+						<option value="finance">Finance</option>
+						<option value="healthcare">Healthcare</option>
+						<option value="consumer">Consumer</option>
+						<option value="energy">Energy</option>
+						<option value="industrial">Industrial</option>
+						<option value="telecom">Telecom</option>
+					</select>
+				</div>
 			</div>
 		</section>
 
@@ -87,10 +136,15 @@
 		<div id="stocks-grid"></div>
 	</main>
 
+	<a href="/chat.html" class="chat-fab" aria-label="Open AI Chat">
+		<span>💬</span>
+		Open AI Chat
+	</a>
+
 	<!-- FOOTER -->
 	<footer class="app-footer">
-		<p>🇺🇸 US Stock Market Analysis Only | Powered by AI | Developed by Daniel Thapa</p>
-		<p class="disclaimer">© 2024 AI Stock Advisor. This is not real financial advice. Always do your own research.</p>
+		<p>🇺🇸 + 🇮🇳 AI Stock Advisor | Analysis, AI Chat, Document Insights, Beginner Learning</p>
+		<p class="disclaimer">© <span id="year"></span> AI Stock Advisor. Educational content only. Not financial advice. Always do your own research.</p>
 	</footer>
 
 	<script type="module" src="./stocks.js"></script>
@@ -129,6 +183,7 @@
 			this.classList.toggle('active');
 			document.querySelector('.nav-links').classList.toggle('active');
 		});
+		document.getElementById('year').textContent = new Date().getFullYear();
 	</script>
 </body>
 

@@ -5,8 +5,16 @@ let useRAG = false
 const tickersArr = []
 let stockDataGlobal = []
 let chartInstance = null
+let latestReportText = ''
+const BOLLINGER_PERIOD = 20
+const BOLLINGER_STD_MULTIPLIER = 2
+const LOOKBACK_DAYS_FOR_SD = 75
+const NEWS_FEED_ENDPOINT = 'https://openai-api-worker.magar-t-daniel.workers.dev/news'
+const HOME_GUIDE_OPEN_KEY = 'home_guide_open'
 
 const generateReportBtn = document.querySelector('.generate-report-btn')
+const copyReportBtn = document.getElementById('copy-report-btn')
+const copyChartDataBtn = document.getElementById('copy-chart-data-btn')
 
 // Toast notification system
 function showToast(message, type = 'info', title = '', duration = 5000) {
@@ -139,6 +147,95 @@ function renderTickers() {
     })
 }
 
+function getAnalysisStartDate(endDateISO, daysBack = LOOKBACK_DAYS_FOR_SD) {
+    const d = new Date(`${endDateISO}T00:00:00`)
+    d.setDate(d.getDate() - daysBack)
+    const yyyy = d.getFullYear()
+    const mm = String(d.getMonth() + 1).padStart(2, '0')
+    const dd = String(d.getDate()).padStart(2, '0')
+    return `${yyyy}-${mm}-${dd}`
+}
+
+function calculateStdDev(values, mean) {
+    if (!values.length) return 0
+    const variance = values.reduce((acc, value) => acc + Math.pow(value - mean, 2), 0) / values.length
+    return Math.sqrt(variance)
+}
+
+function calculateAngelOneBollingerSignal(chartData) {
+    if (!chartData || chartData.length < BOLLINGER_PERIOD) return null
+
+    const closes = chartData.map((d) => d.close)
+    const window = closes.slice(-BOLLINGER_PERIOD)
+    const sma = window.reduce((sum, value) => sum + value, 0) / BOLLINGER_PERIOD
+    const stdDev = calculateStdDev(window, sma)
+    const upperBand = sma + (BOLLINGER_STD_MULTIPLIER * stdDev)
+    const lowerBand = sma - (BOLLINGER_STD_MULTIPLIER * stdDev)
+
+    const latestClose = closes[closes.length - 1]
+    const previousClose = closes[closes.length - 2] || latestClose
+    const dayChangePct = previousClose === 0 ? 0 : ((latestClose - previousClose) / previousClose) * 100
+    const zScore = stdDev === 0 ? 0 : (latestClose - sma) / stdDev
+    const bandwidthPct = sma === 0 ? 0 : ((upperBand - lowerBand) / sma) * 100
+
+    let signal = 'HOLD'
+    let reason = 'Price is within Bollinger Bands; no strong overbought/oversold signal.'
+
+    // Angel One style interpretation: outside bands indicate stretched conditions.
+    if (latestClose < lowerBand) {
+        signal = 'BUY'
+        reason = 'Price is below lower Bollinger Band (potential oversold/reversion setup).'
+    } else if (latestClose > upperBand) {
+        signal = 'SELL'
+        reason = 'Price is above upper Bollinger Band (potential overbought/reversion setup).'
+    } else if (zScore <= -1.2) {
+        signal = 'BUY'
+        reason = 'Price is near lower volatility range; buy-on-dips setup.'
+    } else if (zScore >= 1.2) {
+        signal = 'HOLD'
+        reason = 'Price is near upper volatility range; wait for better risk-reward.'
+    }
+
+    const confidence = Math.abs(zScore) >= 2 ? 'HIGH' : Math.abs(zScore) >= 1.2 ? 'MEDIUM' : 'LOW'
+
+    return {
+        latestClose,
+        previousClose,
+        dayChangePct,
+        sma,
+        stdDev,
+        upperBand,
+        lowerBand,
+        zScore,
+        bandwidthPct,
+        signal,
+        confidence,
+        reason
+    }
+}
+
+function buildIndicatorSummary(ticker, indicator) {
+    if (!indicator) {
+        return `${ticker} indicator_summary: insufficient historical points for ${BOLLINGER_PERIOD}-period SD logic.`
+    }
+
+    return [
+        `${ticker} indicator_summary:`,
+        `- logic: Bollinger(${BOLLINGER_PERIOD}, ${BOLLINGER_STD_MULTIPLIER}SD) based on Angel One style volatility interpretation`,
+        `- latest_close: ${indicator.latestClose.toFixed(2)}`,
+        `- day_change_pct: ${indicator.dayChangePct.toFixed(2)}%`,
+        `- sma_${BOLLINGER_PERIOD}: ${indicator.sma.toFixed(2)}`,
+        `- std_dev_${BOLLINGER_PERIOD}: ${indicator.stdDev.toFixed(2)}`,
+        `- upper_band: ${indicator.upperBand.toFixed(2)}`,
+        `- lower_band: ${indicator.lowerBand.toFixed(2)}`,
+        `- z_score: ${indicator.zScore.toFixed(2)}`,
+        `- band_width_pct: ${indicator.bandwidthPct.toFixed(2)}%`,
+        `- model_signal: ${indicator.signal}`,
+        `- signal_confidence: ${indicator.confidence}`,
+        `- signal_reason: ${indicator.reason}`
+    ].join('\n')
+}
+
 // Clear tickers button handler
 document.getElementById('clear-tickers-btn').addEventListener('click', () => {
     tickersArr.length = 0
@@ -207,6 +304,8 @@ async function fetchStockData() {
             // Show message instead of chart
             const chartsContainer = document.querySelector('.charts-container')
             chartsContainer.innerHTML = '<p style="text-align: center; color: #94a3b8; padding: 40px;">📄 Document analysis complete. Add stock tickers to see price charts.</p>'
+            const sdSection = document.getElementById('sd-signal-section')
+            if (sdSection) sdSection.style.display = 'none'
             
             const card = document.querySelector('.report-card')
             card.innerHTML = `<p>${cleaned}</p>`
@@ -228,9 +327,10 @@ async function fetchStockData() {
     const failedTickers = []
 
     try {
+        const analysisStartDate = getAnalysisStartDate(dates.endDate, LOOKBACK_DAYS_FOR_SD)
         const stockData = await Promise.all(
             tickersArr.map(async (ticker) => {
-                const url = `https://polygon-api-worker.magar-t-daniel.workers.dev/?ticker=${ticker}&start=${dates.startDate}&end=${dates.endDate}`
+                const url = `https://polygon-api-worker.magar-t-daniel.workers.dev/?ticker=${ticker}&start=${analysisStartDate}&end=${dates.endDate}`
 
                 try {
                     const response = await fetch(url)
@@ -255,16 +355,21 @@ async function fetchStockData() {
                         open: day.o
                     }))
 
-                    // Convert to readable text for AI
-                    const lines = json.results.map((day, i) => {
+                    const indicator = calculateAngelOneBollingerSignal(chartData)
+
+                    // Convert recent points + indicator metrics to readable text for AI
+                    const lines = json.results.slice(-20).map((day, i) => {
                         const date = new Date(day.t).toISOString().split('T')[0]
                         return `Day ${i + 1} (${date}): opened at $${day.o}, closed at $${day.c}`
                     })
 
+                    const indicatorSummary = buildIndicatorSummary(ticker, indicator)
+
                     return {
                         ticker,
-                        text: `${ticker}:\n${lines.join('\n')}\n`,
-                        chartData
+                        text: `${ticker}:\n${lines.join('\n')}\n${indicatorSummary}\n`,
+                        chartData,
+                        indicator
                     }
                 } catch (err) {
                     failedTickers.push(ticker)
@@ -355,13 +460,16 @@ async function fetchReport(data) {
             role: 'system',
             content: `
 You are a colourful, dramatic stock market guru.
-Given price data for one or more stocks over the past few days,
+Given stock data + indicator_summary for one or more stocks,
 write a fun, punchy report (max 150 words total).
 
 For each stock:
-- Mention the opening and closing prices.
+- Mention the latest closing price and one recent price move.
 - Describe the trend (up, down, volatile, flat).
-- End with a clear recommendation: Buy, Hold, or Sell.
+- Use the provided Bollinger/standard-deviation metrics as primary logic:
+  * SMA(${BOLLINGER_PERIOD}), SD(${BOLLINGER_PERIOD}), Upper/Lower bands, z-score
+  * Treat model_signal as the baseline recommendation
+- End each stock with exactly one recommendation: Buy, Hold, or Sell.
 
 Style:
 - Energetic
@@ -503,7 +611,7 @@ async function fetchReportWithDoc(data) {
     const messages = [
         {
             role: 'system',
-            content: `You are a colourful, dramatic stock market guru. Analyze stock data and write a fun, punchy report (max 150 words). For each stock: mention opening/closing prices, describe the trend, end with Buy/Hold/Sell recommendation. Use the provided document context to enhance your analysis. Style: Energetic, playful, no bullet points, no markdown, plain text only.`
+            content: `You are a colourful, dramatic stock market guru. Analyze stock data and write a fun, punchy report (max 150 words). For each stock: mention latest close and one recent move, describe trend, and end with one Buy/Hold/Sell recommendation. Use the provided Bollinger(${BOLLINGER_PERIOD}, ${BOLLINGER_STD_MULTIPLIER}SD) indicator_summary as primary logic (SMA, SD, bands, z-score, model_signal). Use the document context only as supporting evidence, not to override clear indicator extremes. Style: Energetic, playful, no bullet points, no markdown, plain text only.`
         },
         {
             role: 'user',
@@ -560,6 +668,8 @@ function renderReport(output) {
 
     const outputArea = document.querySelector('.output-panel')
     const card = outputArea.querySelector('.report-card')
+    latestReportText = output
+    renderSdSignalCards()
 
     card.innerHTML = ''
 
@@ -638,6 +748,129 @@ function renderReport(output) {
 
     // Render chart
     renderChart()
+}
+
+function buildReportCopyText() {
+    const sdLines = stockDataGlobal
+        .filter((stock) => stock.indicator)
+        .map((stock) => {
+            const i = stock.indicator;
+            return [
+                `${stock.ticker} [${i.signal} | ${i.confidence}]`,
+                `SMA(20): ${i.sma.toFixed(2)}`,
+                `SD(20): ${i.stdDev.toFixed(2)}`,
+                `Upper Band: ${i.upperBand.toFixed(2)}`,
+                `Lower Band: ${i.lowerBand.toFixed(2)}`,
+                `Z-Score: ${i.zScore.toFixed(2)}`,
+                `Band Width: ${i.bandwidthPct.toFixed(2)}%`
+            ].join(' | ');
+        });
+
+    const sections = [];
+    if (sdLines.length) {
+        sections.push('SD SIGNAL CARDS (Bollinger 20, 2SD)');
+        sections.push(sdLines.join('\n'));
+    }
+    if (latestReportText && latestReportText.trim()) {
+        sections.push('AI MARKET REPORT');
+        sections.push(latestReportText.trim());
+    }
+
+    return sections.join('\n\n');
+}
+
+copyReportBtn?.addEventListener('click', async () => {
+    const reportText = buildReportCopyText();
+    if (!reportText.trim()) {
+        showToast('No AI report available to copy yet.', 'warning', 'Nothing to Copy', 2500);
+        return;
+    }
+    try {
+        await navigator.clipboard.writeText(reportText);
+        showToast('Report copied to clipboard.', 'success', 'Copied', 2200);
+    } catch (error) {
+        showToast('Failed to copy report.', 'error', 'Copy Error', 2500);
+    }
+});
+
+copyChartDataBtn?.addEventListener('click', async () => {
+    const section = document.querySelector('.report-content')
+    if (!section || section.offsetParent === null) {
+        showToast('No report snapshot available yet.', 'warning', 'Nothing to Copy', 2500)
+        return
+    }
+    try {
+        await copyElementAsImage(section, 'stock-analysis-report')
+        showToast('Snapshot copied to clipboard.', 'success', 'Copied', 2200)
+    } catch (error) {
+        showToast('Could not copy snapshot. Downloaded instead.', 'warning', 'Clipboard Unavailable', 2600)
+    }
+})
+
+async function copyElementAsImage(element, fileName) {
+    if (!element || typeof html2canvas === 'undefined') {
+        throw new Error('Snapshot library unavailable')
+    }
+
+    const canvas = await html2canvas(element, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: null
+    })
+    const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/png'))
+    if (!blob) throw new Error('Failed to create image blob')
+
+    if (navigator.clipboard && window.ClipboardItem) {
+        await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })])
+        return
+    }
+
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `${fileName}.png`
+    document.body.appendChild(link)
+    link.click()
+    link.remove()
+    URL.revokeObjectURL(url)
+    throw new Error('Clipboard image API unavailable')
+}
+
+function renderSdSignalCards() {
+    const section = document.getElementById('sd-signal-section')
+    const container = document.getElementById('sd-signal-cards')
+    if (!section || !container) return
+
+    const stocksWithIndicator = stockDataGlobal.filter((stock) => stock.indicator)
+    if (!stocksWithIndicator.length) {
+        section.style.display = 'none'
+        container.innerHTML = ''
+        return
+    }
+
+    const toMoney = (num) => Number(num).toFixed(2)
+    container.innerHTML = stocksWithIndicator.map((stock) => {
+        const i = stock.indicator
+        const signalClass = i.signal.toLowerCase()
+        return `
+            <div class="sd-signal-card">
+                <div class="sd-signal-head">
+                    <span class="sd-ticker">${stock.ticker}</span>
+                    <span class="sd-pill ${signalClass}">${i.signal} (${i.confidence})</span>
+                </div>
+                <div class="sd-grid">
+                    <div class="sd-metric">SMA(20): <strong>${toMoney(i.sma)}</strong></div>
+                    <div class="sd-metric">SD(20): <strong>${toMoney(i.stdDev)}</strong></div>
+                    <div class="sd-metric">Upper Band: <strong>${toMoney(i.upperBand)}</strong></div>
+                    <div class="sd-metric">Lower Band: <strong>${toMoney(i.lowerBand)}</strong></div>
+                    <div class="sd-metric">Z-Score: <strong>${i.zScore.toFixed(2)}</strong></div>
+                    <div class="sd-metric">Band Width: <strong>${i.bandwidthPct.toFixed(2)}%</strong></div>
+                </div>
+            </div>
+        `
+    }).join('')
+
+    section.style.display = 'block'
 }
 
 function renderChart() {
@@ -726,7 +959,7 @@ window.addEventListener('themeChanged', () => {
         renderChart()
     }
 })
-const newReportBtn = document.querySelector('.new-report-btn')
+const newReportBtn = document.getElementById('new-report-btn')
 
 if (newReportBtn) {
     newReportBtn.addEventListener('click', () => {
@@ -743,6 +976,10 @@ if (newReportBtn) {
         document.querySelector('.generate-report-btn').disabled = true
         document.querySelector('.output-panel').style.display = 'none'
         document.querySelector('.action-panel').style.display = 'block'
+        const sdSection = document.getElementById('sd-signal-section')
+        const sdCards = document.getElementById('sd-signal-cards')
+        if (sdSection) sdSection.style.display = 'none'
+        if (sdCards) sdCards.innerHTML = ''
         document.getElementById('clear-tickers-btn').style.display = 'none'
         
         const label = document.querySelector('.ticker-label')
@@ -789,3 +1026,158 @@ document.querySelectorAll('.clickable-chip').forEach(chip => {
         }
     })
 })
+
+async function loadHomeNewsFeed() {
+    const listEl = document.getElementById('news-feed-list')
+    const briefEl = document.getElementById('news-feed-brief')
+    const regionEl = document.getElementById('news-region-filter')
+    const tickerEl = document.getElementById('news-ticker-filter')
+    if (!listEl || !briefEl || !regionEl || !tickerEl) return
+
+    const region = regionEl.value || 'all'
+    const ticker = tickerEl.value.trim().toUpperCase()
+    const params = new URLSearchParams({ region })
+    if (ticker) params.set('ticker', ticker)
+
+    listEl.innerHTML = ''
+    briefEl.textContent = 'Loading latest headlines...'
+
+    try {
+        const res = await fetch(`${NEWS_FEED_ENDPOINT}?${params.toString()}`)
+        if (!res.ok) throw new Error('News request failed')
+        const json = await res.json()
+        const items = Array.isArray(json.items) ? json.items : []
+        briefEl.textContent = json.marketBrief || 'Latest headlines'
+
+        if (!items.length) {
+            listEl.innerHTML = '<p class="muted">No matching headlines found right now.</p>'
+            return
+        }
+
+        listEl.innerHTML = items.slice(0, 12).map((item) => `
+            <article class="news-item">
+                <h4><a href="${item.link}" target="_blank" rel="noopener noreferrer">${item.title}</a></h4>
+                <div class="news-meta">
+                    <span>${item.source || 'Source'}</span>
+                    <span>•</span>
+                    <span>${item.region === 'india' ? 'India' : 'US'}</span>
+                    <span class="news-badge ${item.sentiment || 'neutral'}">${(item.sentiment || 'neutral').toUpperCase()}</span>
+                </div>
+                <p class="news-why">${item.aiWhy || 'Review source context before making decisions.'}</p>
+            </article>
+        `).join('')
+    } catch (err) {
+        briefEl.textContent = 'Unable to load news feed right now.'
+        listEl.innerHTML = '<p class="muted">Please try refresh in a moment.</p>'
+    }
+}
+
+function initHomeNewsRegionDropdown() {
+    const dropdown = document.getElementById('news-region-dropdown')
+    const toggle = document.getElementById('news-region-toggle')
+    const menu = document.getElementById('news-region-menu')
+    const label = document.getElementById('news-region-label')
+    const regionSelect = document.getElementById('news-region-filter')
+    if (!dropdown || !toggle || !menu || !label || !regionSelect) return
+
+    const optionButtons = Array.from(menu.querySelectorAll('.news-dropdown-option'))
+
+    const syncUi = (value) => {
+        const selected = optionButtons.find((btn) => btn.dataset.value === value) || optionButtons[0]
+        optionButtons.forEach((btn) => btn.classList.toggle('is-selected', btn === selected))
+        if (selected) {
+            label.textContent = selected.dataset.label || selected.textContent.trim()
+        }
+    }
+
+    const closeMenu = () => {
+        dropdown.classList.remove('is-open')
+        toggle.setAttribute('aria-expanded', 'false')
+        menu.style.display = 'none'
+    }
+
+    const openMenu = () => {
+        dropdown.classList.add('is-open')
+        toggle.setAttribute('aria-expanded', 'true')
+        menu.style.display = 'block'
+    }
+
+    toggle.addEventListener('click', () => {
+        const isOpen = dropdown.classList.contains('is-open')
+        if (isOpen) closeMenu()
+        else openMenu()
+    })
+
+    optionButtons.forEach((btn) => {
+        btn.addEventListener('click', () => {
+            const value = btn.dataset.value || 'all'
+            regionSelect.value = value
+            syncUi(value)
+            closeMenu()
+            regionSelect.dispatchEvent(new Event('change'))
+        })
+    })
+
+    document.addEventListener('click', (event) => {
+        if (!dropdown.contains(event.target)) {
+            closeMenu()
+        }
+    })
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+            closeMenu()
+        }
+    })
+
+    syncUi(regionSelect.value || 'all')
+}
+
+function initHomeGuideRailToggle() {
+    const workspace = document.querySelector('.analysis-workspace')
+    const toggleBtn = document.getElementById('workspace-guide-toggle')
+    if (!workspace || !toggleBtn) return
+
+    const setGuideOpen = (open, persist = true) => {
+        const isDesktop = window.matchMedia('(min-width: 1025px)').matches
+        const shouldCollapse = isDesktop ? !open : false
+        workspace.classList.toggle('guide-collapsed', shouldCollapse)
+        toggleBtn.classList.toggle('is-on', open && isDesktop)
+        toggleBtn.setAttribute('aria-pressed', open && isDesktop ? 'true' : 'false')
+        toggleBtn.textContent = open && isDesktop ? 'Guide: On' : 'Guide: Off'
+        if (persist) {
+            localStorage.setItem(HOME_GUIDE_OPEN_KEY, open ? 'on' : 'off')
+        }
+    }
+
+    const savedGuideOpen = localStorage.getItem(HOME_GUIDE_OPEN_KEY)
+    setGuideOpen(savedGuideOpen === null ? true : savedGuideOpen === 'on', false)
+
+    toggleBtn.addEventListener('click', () => {
+        const isOpen = !workspace.classList.contains('guide-collapsed')
+        setGuideOpen(!isOpen)
+    })
+
+    window.addEventListener('resize', () => {
+        const saved = localStorage.getItem(HOME_GUIDE_OPEN_KEY)
+        const open = saved === null ? true : saved === 'on'
+        setGuideOpen(open, false)
+    })
+}
+
+const refreshNewsBtn = document.getElementById('refresh-news-btn')
+const newsRegionFilter = document.getElementById('news-region-filter')
+const newsTickerFilter = document.getElementById('news-ticker-filter')
+if (refreshNewsBtn && newsRegionFilter && newsTickerFilter) {
+    initHomeGuideRailToggle()
+    initHomeNewsRegionDropdown()
+    refreshNewsBtn.addEventListener('click', loadHomeNewsFeed)
+    newsRegionFilter.addEventListener('change', loadHomeNewsFeed)
+    newsTickerFilter.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault()
+            loadHomeNewsFeed()
+        }
+    })
+    loadHomeNewsFeed()
+}

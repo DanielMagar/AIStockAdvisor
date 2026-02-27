@@ -9,12 +9,14 @@
 
 	<link rel="preconnect" href="https://fonts.googleapis.com" />
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+	<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 
 	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
-  <script type="module" crossorigin src="/assets/main-nLokR2I4.js"></script>
-  <link rel="stylesheet" crossorigin href="/assets/index-RVpy8KJ4.css">
+  <script type="module" crossorigin src="/assets/main-D4O6Z4gx.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/dark-theme-C6BvB9uh.js">
+  <link rel="stylesheet" crossorigin href="/assets/dark-theme-DOSL0oLk.css">
 </head>
 
 <body>
@@ -22,6 +24,7 @@
 	<header class="app-header">
 		<div class="brand">
 			<div class="logo">
+				<a href="/" style="display: flex; align-items: center; gap: 16px; text-decoration: none; color: inherit;">
 				<svg width="40" height="40" viewBox="0 0 40 40" fill="none">
 					<rect width="40" height="40" rx="8" fill="url(#gradient)"/>
 					<path d="M10 25L15 18L20 22L25 12L30 16" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -34,13 +37,25 @@
 				</svg>
 				<div>
 					<h1 class="brand-title">AI Stock Advisor</h1>
-					<span class="subtitle">🇺🇸 US Market Predictions</span>
+					<span class="subtitle">US Market Predictions</span>
 				</div>
+				</a>
 			</div>
 			<nav class="nav-links">
-				<a href="/" class="active">Home</a>
+				<a href="/" class="active">Stock Analysis</a>
 				<a href="/stocks.html">Browse Stocks</a>
+				<a href="/chat.html">AI Chat</a>
+				<a href="/beginners.html">Learn Basics</a>
 			</nav>
+			<button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme" title="Toggle dark mode">
+				<img src="/images/icons8-crescent-moon-96.png" alt="Toggle theme" class="theme-icon" width="24" height="24" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';" />
+				<span class="theme-icon-fallback" style="display:none;">🌙</span>
+			</button>
+			<button class="hamburger" id="hamburger" aria-label="Menu">
+				<span></span>
+				<span></span>
+				<span></span>
+			</button>
 		</div>
 	</header>
 
@@ -49,75 +64,154 @@
 		<!-- ACTION PANEL (JS depends on this class) -->
 		<section class="card action-panel">
 			<div class="panel-header">
-				<h1>📊 Analyze US Stocks</h1>
-				<p class="muted">
-					Enter up to 3 US stock tickers to generate AI-powered market insights
-				</p>
-			</div>
-
-			<div class="guide-section">
-				<div class="guide-header">
-					<span class="guide-icon">💡</span>
-					<h3>New to Stock Tickers?</h3>
+				<div class="panel-head-row">
+					<div>
+						<h1>📊 Analyze US Stocks</h1>
+						<p class="muted">
+							Enter up to 3 US stock tickers to generate AI-powered market insights
+						</p>
+					</div>
+					<button class="help-btn" id="help-btn" title="What is a stock ticker?">❓</button>
 				</div>
-				<p class="guide-text">
-					A stock ticker is a unique code (usually 1-5 letters) that identifies a publicly traded company. 
-					For example, <strong>AAPL</strong> represents Apple Inc. Simply type the ticker symbol below and click "Add Ticker".
-				</p>
-			</div>
-
-			<div class="stock-examples">
-				<span class="example-label">🎯 Popular US Stocks (Click to learn more):</span>
-				<div class="stock-chips">
-					<span class="chip" title="Apple Inc. - Technology">AAPL - Apple</span>
-					<span class="chip" title="Microsoft Corporation - Technology">MSFT - Microsoft</span>
-					<span class="chip" title="Alphabet Inc. - Technology">GOOGL - Google</span>
-					<span class="chip" title="Tesla Inc. - Automotive/Energy">TSLA - Tesla</span>
-					<span class="chip" title="Amazon.com Inc. - E-commerce">AMZN - Amazon</span>
-					<span class="chip" title="NVIDIA Corporation - Semiconductors">NVDA - NVIDIA</span>
-					<span class="chip" title="Meta Platforms Inc. - Social Media">META - Meta</span>
-					<span class="chip" title="Netflix Inc. - Streaming">NFLX - Netflix</span>
-					<span class="chip" title="JPMorgan Chase & Co. - Banking">JPM - JPMorgan</span>
-					<span class="chip" title="Johnson & Johnson - Healthcare">JNJ - J&J</span>
-					<span class="chip" title="Visa Inc. - Financial Services">V - Visa</span>
-					<span class="chip" title="Walmart Inc. - Retail">WMT - Walmart</span>
-					<span class="chip" title="Coca-Cola Company - Beverages">KO - Coca-Cola</span>
-					<span class="chip" title="Nike Inc. - Apparel">NKE - Nike</span>
-					<span class="chip" title="Disney - Entertainment">DIS - Disney</span>
-					<span class="chip" title="McDonald's Corporation - Fast Food">MCD - McDonald's</span>
+				<div class="analysis-kpis">
+					<div class="analysis-kpi"><span>Max Tickers</span><strong>3</strong></div>
+					<div class="analysis-kpi"><span>Coverage</span><strong>US Equities</strong></div>
+					<div class="analysis-kpi"><span>Output</span><strong>Buy / Hold / Sell</strong></div>
+					<div class="analysis-kpi"><span>Engine</span><strong>AI + SD Signals</strong></div>
 				</div>
 			</div>
 
-			<form id="ticker-input-form" class="ticker-form">
-				<input type="text" id="ticker-input" placeholder="Enter tickers (e.g., AAPL, TSLA, MSFT)" autocomplete="off" />
-				<button class="add-ticker-btn" type="submit">+ Add Ticker(s)</button>
-			</form>
-
-			<p class="input-hint">💡 Tip: Add one ticker at a time or multiple separated by commas</p>
-
-			<!-- JS expects this exact class -->
-			<div class="ticker-display-wrapper">
-				<div class="ticker-header">
-					<label class="ticker-label">Selected Tickers:</label>
-					<button class="clear-tickers-btn" id="clear-tickers-btn" style="display: none;">✕ Clear All</button>
+			<div class="help-popup" id="help-popup" style="display: none;">
+				<div class="help-content">
+					<button class="help-close" id="help-close">×</button>
+					<h3>💡 New to Stock Tickers?</h3>
+					<p>A stock ticker is a unique code (usually 1-5 letters) that identifies a publicly traded company. For example, <strong>AAPL</strong> represents Apple Inc. Simply type the ticker symbol below and click "Add Ticker".</p>
 				</div>
-				<p class="ticker-choice-display">
-					Your tickers will appear here…
-				</p>
 			</div>
 
-			<!-- JS expects this exact class -->
-			<button class="generate-report-btn" type="button" disabled>
-				🚀 Generate AI Report
-			</button>
+			<div class="analysis-workspace">
+				<div class="analysis-input-zone">
+					<div class="chat-spotlight">
+						<div class="chat-spotlight-content">
+							<p class="chat-spotlight-kicker">AI Copilot</p>
+							<h3>Need instant stock explanation? Use AI Chat</h3>
+							<p>Ask in plain language, compare US + Indian stocks, and get beginner-friendly reasoning in seconds.</p>
+						</div>
+						<a class="chat-spotlight-btn" href="/chat.html">Open AI Chat</a>
+					</div>
+					<div class="stock-examples">
+						<span class="example-label">🎯 Popular US Stocks:</span>
+						<div class="stock-chips">
+							<span class="chip clickable-chip" data-ticker="AAPL" title="Apple Inc. - Technology">AAPL</span>
+							<span class="chip clickable-chip" data-ticker="MSFT" title="Microsoft Corporation - Technology">MSFT</span>
+							<span class="chip clickable-chip" data-ticker="GOOGL" title="Alphabet Inc. - Technology">GOOGL</span>
+							<span class="chip clickable-chip" data-ticker="TSLA" title="Tesla Inc. - Automotive/Energy">TSLA</span>
+							<span class="chip clickable-chip" data-ticker="AMZN" title="Amazon.com Inc. - E-commerce">AMZN</span>
+							<span class="chip clickable-chip" data-ticker="NVDA" title="NVIDIA Corporation - Semiconductors">NVDA</span>
+							<span class="chip clickable-chip" data-ticker="META" title="Meta Platforms Inc. - Social Media">META</span>
+							<span class="chip clickable-chip" data-ticker="NFLX" title="Netflix Inc. - Streaming">NFLX</span>
+							<span class="chip clickable-chip" data-ticker="JPM" title="JPMorgan Chase & Co. - Banking">JPM</span>
+							<span class="chip clickable-chip" data-ticker="JNJ" title="Johnson & Johnson - Healthcare">JNJ</span>
+							<span class="chip clickable-chip" data-ticker="V" title="Visa Inc. - Financial Services">V</span>
+							<span class="chip clickable-chip" data-ticker="WMT" title="Walmart Inc. - Retail">WMT</span>
+							<span class="chip clickable-chip" data-ticker="KO" title="Coca-Cola Company - Beverages">KO</span>
+							<span class="chip clickable-chip" data-ticker="NKE" title="Nike Inc. - Apparel">NKE</span>
+							<span class="chip clickable-chip" data-ticker="DIS" title="Disney - Entertainment">DIS</span>
+							<span class="chip clickable-chip" data-ticker="MCD" title="McDonald's Corporation - Fast Food">MCD</span>
+						</div>
+					</div>
+
+					<form id="ticker-input-form" class="ticker-form">
+						<input type="text" id="ticker-input" placeholder="Enter tickers (e.g., AAPL, TSLA, MSFT)" autocomplete="off" />
+						<button class="add-ticker-btn" type="submit">+ Add Ticker(s)</button>
+					</form>
+
+					<p class="input-hint">💡 Tip: Add one ticker at a time or multiple separated by commas</p>
+
+					<!-- JS expects this exact class -->
+					<div class="ticker-display-wrapper">
+						<div class="ticker-header">
+							<label class="ticker-label">Selected Tickers:</label>
+							<button class="clear-tickers-btn" id="clear-tickers-btn" style="display: none;">✕ Clear All</button>
+						</div>
+						<p class="ticker-choice-display">
+							Your tickers will appear here…
+						</p>
+					</div>
+
+					<!-- JS expects this exact class -->
+					<button class="generate-report-btn" type="button" disabled>
+						🚀 Generate AI Report
+					</button>
+				</div>
+
+				<aside class="analysis-guide-card">
+					<h3>Quick Workflow</h3>
+					<ol>
+						<li>Select up to 3 tickers.</li>
+						<li>Optionally upload a document.</li>
+						<li>Generate report and review SD signals + AI thesis.</li>
+					</ol>
+					<h4>Pro tip</h4>
+					<p>Use one large-cap + one sector peer to compare momentum and risk quickly.</p>
+				</aside>
+			</div>
+
+			<!-- DOCUMENT UPLOAD SECTION -->
+			<div class="doc-upload-section">
+				<div class="doc-upload-header">
+					<span class="doc-icon">📄</span>
+					<div>
+						<h3>Enhance with Document Analysis</h3>
+						<p class="doc-subtitle">Upload earnings reports or financial documents for deeper insights</p>
+					</div>
+				</div>
+
+				<div class="doc-upload-area" id="doc-upload-area">
+					<input type="file" id="doc-upload" accept=".txt,.pdf" />
+					<div class="upload-placeholder">
+						<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+							<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+							<polyline points="17 8 12 3 7 8"></polyline>
+							<line x1="12" y1="3" x2="12" y2="15"></line>
+						</svg>
+						<p class="upload-text">Drop your file here or <span class="upload-link">browse</span></p>
+					</div>
+					<div class="uploaded-file-display" id="uploaded-file-display" style="display: none;">
+						<div class="file-info">
+							<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+								<path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
+								<polyline points="13 2 13 9 20 9"></polyline>
+							</svg>
+							<span id="file-name-display"></span>
+						</div>
+						<button class="remove-file-btn" id="remove-file-btn">×</button>
+					</div>
+				</div>
+				<p class="upload-hint" style="text-align: center; margin-top: 8px;">Supports TXT files only. For PDF analysis, <a href="/chat.html" style="color: #6366f1; text-decoration: underline; font-weight: 500;">click here</a></p>
+
+				<div class="doc-toggle-wrapper">
+					<label class="toggle-switch">
+						<input type="checkbox" id="use-doc-toggle" disabled />
+						<span class="toggle-slider"></span>
+					</label>
+					<span class="toggle-label">Use document for AI analysis</span>
+				</div>
+			</div>
 
 			<p class="tiny muted">⚠️ For entertainment purposes only. Not financial advice.</p>
 		</section>
 
 		<!-- LOADING PANEL (JS depends on this class + #api-message) -->
 		<section class="loading-panel">
-			<div class="spinner"></div>
-			<div id="api-message">Querying market data…</div>
+			<div class="ai-brain-animation">
+				<div class="brain-pulse"></div>
+				<div class="brain-icon">🧠</div>
+			</div>
+			<div id="api-message" class="ai-loading-text">AI is analyzing market data...</div>
+			<div class="loading-dots">
+				<span></span><span></span><span></span>
+			</div>
 		</section>
 
 		<!-- OUTPUT PANEL (JS depends on this class) -->
@@ -126,7 +220,9 @@
 				<h2>📈 Your AI Market Report</h2>
 				<div class="report-actions">
 					<div class="verdict-badges" id="verdict-badges"></div>
-					<button class="new-report-btn">← Back to Home</button>
+					<button class="new-report-btn" id="copy-report-btn" type="button">📋 Copy Report</button>
+					<button class="new-report-btn" id="copy-chart-data-btn" type="button">📸 Copy Snapshot</button>
+					<button class="new-report-btn" id="new-report-btn" type="button">← Back to Home</button>
 				</div>
 			</div>
 
@@ -135,21 +231,87 @@
 					<canvas id="stockChart"></canvas>
 				</div>
 
-				<div class="report-card"></div>
+				<div class="analysis-column">
+					<div class="sd-signal-section" id="sd-signal-section" style="display: none;">
+						<h3>📐 SD Signal Cards (Bollinger 20, 2SD)</h3>
+						<div class="sd-signal-cards" id="sd-signal-cards"></div>
+					</div>
+					<div class="report-card"></div>
+				</div>
 			</div>
+		</section>
+
+		<section class="card news-feed-section" id="news-feed-section">
+			<div class="news-feed-head">
+				<h2>📰 Stock News Feed (US + India)</h2>
+				<button type="button" id="refresh-news-btn" class="new-report-btn">Refresh</button>
+			</div>
+			<div class="news-feed-controls">
+				<select id="news-region-filter">
+					<option value="all">All Regions</option>
+					<option value="us">US</option>
+					<option value="india">India</option>
+				</select>
+				<input id="news-ticker-filter" type="text" placeholder="Filter ticker (optional, e.g., AAPL or TCS.NS)" />
+			</div>
+			<p class="news-feed-brief" id="news-feed-brief">Loading latest headlines...</p>
+			<div class="news-feed-list" id="news-feed-list"></div>
 		</section>
 
 	</main>
 
+	<a href="/chat.html" class="chat-fab" aria-label="Open AI Chat">
+		<span>💬</span>
+		Open AI Chat
+	</a>
+
 	<!-- FOOTER -->
 	<footer class="app-footer">
-		<p>🇺🇸 US Stock Market Analysis Only | Powered by AI | Developed by Daniel Thapa</p>
-		<p class="disclaimer">© 2024 AI Stock Advisor. This is not real financial advice. Always do your own research.</p>
+		<p>🇺🇸 + 🇮🇳 AI Stock Advisor | Analysis, AI Chat, Document Insights, Beginner Learning</p>
+		<p class="disclaimer">© <span id="year"></span> AI Stock Advisor. Educational content only. Not financial advice. Always do your own research.</p>
 	</footer>
 
 	<!-- Toast Container -->
 	<div id="toast-container"></div>
 
+	<script>
+		// Theme toggle
+		const themeToggle = document.getElementById('theme-toggle');
+		const themeIcon = document.querySelector('.theme-icon');
+		const savedTheme = localStorage.getItem('theme');
+		if (savedTheme === 'dark') {
+			document.body.classList.add('dark-theme');
+			const img = themeIcon;
+			const fallback = document.querySelector('.theme-icon-fallback');
+			if (img) {
+				img.src = '/images/icons8-sun-96.png';
+				img.onerror = () => { img.style.display='none'; fallback.style.display='inline'; fallback.textContent='☀️'; };
+			}
+			if (fallback && fallback.style.display !== 'none') fallback.textContent = '☀️';
+			themeToggle.title = 'Toggle light mode';
+		}
+		themeToggle?.addEventListener('click', () => {
+			document.body.classList.toggle('dark-theme');
+			const isDark = document.body.classList.contains('dark-theme');
+			const img = themeIcon;
+			const fallback = document.querySelector('.theme-icon-fallback');
+			if (img) {
+				img.src = isDark ? '/images/icons8-sun-96.png' : '/images/icons8-crescent-moon-96.png';
+				img.onerror = () => { img.style.display='none'; fallback.style.display='inline'; fallback.textContent=isDark?'☀️':'🌙'; };
+			}
+			if (fallback && fallback.style.display !== 'none') fallback.textContent = isDark ? '☀️' : '🌙';
+			themeToggle.title = isDark ? 'Toggle light mode' : 'Toggle dark mode';
+			localStorage.setItem('theme', isDark ? 'dark' : 'light');
+			window.dispatchEvent(new Event('themeChanged'));
+		});
+
+		// Hamburger menu toggle
+		document.getElementById('hamburger')?.addEventListener('click', function() {
+			this.classList.toggle('active');
+			document.querySelector('.nav-links').classList.toggle('active');
+		});
+		document.getElementById("year").textContent = new Date().getFullYear();
+	</script>
 </body>
 
 </html>

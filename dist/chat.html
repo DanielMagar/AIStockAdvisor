@@ -7,13 +7,13 @@
 	<link rel="preconnect" href="https://fonts.googleapis.com" />
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 	<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-	<link rel="stylesheet" href="index.css" />
-	<link rel="stylesheet" href="theme-update.css" />
-	<link rel="stylesheet" href="dark-theme.css" />
-	<link rel="stylesheet" href="chat.css" />
 	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script type="module" crossorigin src="/assets/chat-Btetc0CA.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/dark-theme-C6BvB9uh.js">
+  <link rel="stylesheet" crossorigin href="/assets/dark-theme-DOSL0oLk.css">
+  <link rel="stylesheet" crossorigin href="/assets/chat-wLH5zyYc.css">
 </head>
 <body>
 	<header class="app-header">
@@ -56,32 +56,6 @@
 
 	<main class="chat-page">
 		<section class="chat-shell">
-			<aside class="chat-left-panel">
-				<div class="side-card beginner-guide-card" id="beginner-guide-card">
-					<h3>Beginner Mode Guide</h3>
-					<ul>
-						<li>Turn Beginner Mode ON for guided prompts and a fixed learning sequence</li>
-						<li>Complete one step daily: Basics → Starter Stocks → Trade Plan → Weekly Routine</li>
-						<li>Use uploaded reports/CSV later once you are comfortable with the basics</li>
-					</ul>
-				</div>
-				<div class="side-card">
-					<h3>How to get better answers</h3>
-					<ul>
-						<li>Include ticker + exchange and timeframe (e.g., INFY.NS, HDFCBANK.NS)</li>
-						<li>Ask one focused question at a time</li>
-						<li>Upload one report before follow-up questions</li>
-					</ul>
-				</div>
-				<div class="side-card">
-					<h3>Example prompts</h3>
-					<p>"Give me a buy/sell thesis for MSFT in Q2 2026."</p>
-					<p>"Compare HDFCBANK.NS vs ICICIBANK.NS for long-term investing."</p>
-					<p>"From this report, what are the top three risks?"</p>
-					<p>"Compare valuation and momentum for INFY.NS vs TCS.NS."</p>
-				</div>
-			</aside>
-
 			<div class="chat-main">
 				<div class="chat-header">
 					<div class="chat-title-row">
@@ -90,10 +64,9 @@
 							<h2>AI Stock Chat Assistant</h2>
 							<p>Ask stock-market questions (US + India) or upload a financial PDF/TXT for deeper analysis.</p>
 						</div>
-							<span class="theme-mode-badge" id="theme-mode-badge">Clarity mode</span>
-							<button type="button" class="guide-rail-toggle" id="guide-rail-toggle" aria-pressed="false">Guide: Off</button>
-							<button type="button" class="beginner-mode-toggle" id="beginner-mode-toggle" aria-pressed="false">Beginner Mode: Off</button>
-						</div>
+						<span class="theme-mode-badge" id="theme-mode-badge">Clarity mode</span>
+						<button type="button" class="beginner-mode-toggle" id="beginner-mode-toggle" aria-pressed="false">Beginner Mode: Off</button>
+					</div>
 					<div class="chat-tools" id="chat-tools">
 						<button type="button" class="chat-tools-toggle" id="chat-tools-toggle" aria-expanded="false">
 							<span>Quick prompts & display</span>
@@ -212,6 +185,29 @@
 					<p class="news-side-brief" id="chat-news-brief">Loading headlines...</p>
 					<div class="news-side-list" id="chat-news-list"></div>
 				</div>
+				<div class="side-card beginner-guide-card" id="beginner-guide-card">
+					<h3>Beginner Mode Guide</h3>
+					<ul>
+						<li>Turn Beginner Mode ON for guided prompts and a fixed learning sequence</li>
+						<li>Complete one step daily: Basics → Starter Stocks → Trade Plan → Weekly Routine</li>
+						<li>Use uploaded reports/CSV later once you are comfortable with the basics</li>
+					</ul>
+				</div>
+				<div class="side-card">
+					<h3>How to get better answers</h3>
+					<ul>
+						<li>Include ticker + exchange and timeframe (e.g., INFY.NS, HDFCBANK.NS)</li>
+						<li>Ask one focused question at a time</li>
+						<li>Upload one report before follow-up questions</li>
+					</ul>
+				</div>
+				<div class="side-card">
+					<h3>Example prompts</h3>
+					<p>"Give me a buy/sell thesis for MSFT in Q2 2026."</p>
+					<p>"Compare HDFCBANK.NS vs ICICIBANK.NS for long-term investing."</p>
+					<p>"From this report, what are the top three risks?"</p>
+					<p>"Compare valuation and momentum for INFY.NS vs TCS.NS."</p>
+				</div>
 			</aside>
 		</section>
 	</main>
@@ -223,7 +219,6 @@
 
 	<div id="toast-container"></div>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-	<script src="chat.js" type="module"></script>
 	<script>
 		const themeToggle = document.getElementById('theme-toggle');
 		const themeIcon = document.querySelector('.theme-icon');

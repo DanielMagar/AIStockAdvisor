@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Stock Basics Lab – AI Stock Advisor</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@500;600;700;800&display=swap" rel="stylesheet" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script type="module" crossorigin src="/assets/beginners-Cf1mbQRA.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/dark-theme-C6BvB9uh.js">
+  <link rel="stylesheet" crossorigin href="/assets/dark-theme-DOSL0oLk.css">
+  <link rel="stylesheet" crossorigin href="/assets/beginners-DgsGVuN4.css">
+</head>
+<body>
+  <header class="app-header">
+    <div class="brand">
+      <div class="logo">
+        <a href="/" style="display: flex; align-items: center; gap: 16px; text-decoration: none; color: inherit;">
+          <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+            <rect width="40" height="40" rx="8" fill="url(#gradient)"/>
+            <path d="M10 25L15 18L20 22L25 12L30 16" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <defs>
+              <linearGradient id="gradient" x1="0" y1="0" x2="40" y2="40">
+                <stop offset="0%" stop-color="#6366f1"/>
+                <stop offset="100%" stop-color="#4f46e5"/>
+              </linearGradient>
+            </defs>
+          </svg>
+          <div>
+            <h1 class="brand-title">AI Stock Advisor</h1>
+            <span class="subtitle">US & India Market Predictions</span>
+          </div>
+        </a>
+      </div>
+      <nav class="nav-links">
+        <a href="/">Stock Analysis</a>
+        <a href="/stocks.html">Browse Stocks</a>
+        <a href="/chat.html">AI Chat</a>
+        <a href="/beginners.html" class="active">Learn Basics</a>
+      </nav>
+      <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme" title="Toggle dark mode">
+        <img src="/images/icons8-crescent-moon-96.png" alt="Toggle theme" class="theme-icon" width="24" height="24" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';" />
+        <span class="theme-icon-fallback" style="display:none;">🌙</span>
+      </button>
+      <button class="hamburger" id="hamburger" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <main class="container basics-page">
+    <section class="card basics-hero">
+      <p class="hero-eyebrow">Learning Workspace</p>
+      <h1>Learn Stocks With A Practical Flow</h1>
+      <p class="muted">Understand direction, risk, and execution with guided steps you can apply in US and Indian markets.</p>
+      <div class="hero-pills" aria-label="Learning highlights">
+        <span class="hero-pill">US + India Context</span>
+        <span class="hero-pill">Preset-Based Learning</span>
+        <span class="hero-pill">Generate Trade Plan</span>
+      </div>
+    </section>
+
+    <section class="card walkthrough-card">
+      <h2>Step-by-Step Walkthrough</h2>
+      <p class="muted">Follow these steps in order to learn and apply this page effectively.</p>
+      <ol class="walkthrough-list">
+        <li><strong>Understand the structure:</strong> Start with beginner path and bullish/bearish basics.</li>
+        <li><strong>Pick market context:</strong> Choose India or US, then apply an Indian preset if relevant.</li>
+        <li><strong>Read the simulator output:</strong> Watch bias, practical notes, and confluence score.</li>
+        <li><strong>Set risk correctly:</strong> Enter capital, risk %, entry, and stop-loss in calculator.</li>
+        <li><strong>Generate execution plan:</strong> Create the trade plan and copy it for your journal.</li>
+        <li><strong>Test understanding:</strong> Finish with quiz and checklist discipline.</li>
+      </ol>
+      <div class="walkthrough-actions">
+        <button type="button" class="walkthrough-btn" id="start-popup-tour-btn">Start Tour</button>
+        <button type="button" class="walkthrough-btn" data-target="start-path">Step 1</button>
+        <button type="button" class="walkthrough-btn" data-target="simulator-section">Step 2-3</button>
+        <button type="button" class="walkthrough-btn" data-target="risk-section">Step 4</button>
+        <button type="button" class="walkthrough-btn" data-target="tradeplan-section">Step 5</button>
+        <button type="button" class="walkthrough-btn" data-target="quiz-section">Step 6</button>
+      </div>
+    </section>
+
+    <section class="card india-card" id="market-context-section">
+      <h2>US + India Ready</h2>
+      <div class="india-grid">
+        <article>
+          <h3>Ticker Format</h3>
+          <p>US: <code>AAPL</code>, <code>MSFT</code></p>
+          <p>India: <code>RELIANCE.NS</code>, <code>TCS.NS</code>, <code>HDFCBANK.NS</code></p>
+        </article>
+        <article>
+          <h3>Beginner Universe</h3>
+          <p>Start with large-cap liquid names first. Use Nifty 50 / Sensex leaders for India practice.</p>
+        </article>
+        <article>
+          <h3>Execution Rule</h3>
+          <p>Same framework works in both markets: trend + momentum + volume + risk sizing.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="card start-card" id="start-path">
+      <h2>How To Start Trading (Beginner Path)</h2>
+      <p class="muted">Follow this order. Keep it simple for your first 30 days.</p>
+      <div class="start-steps">
+        <article class="step-item">
+          <span class="step-num">1</span>
+          <div>
+            <h3>Pick Your Mode</h3>
+            <p>Choose <strong>investing</strong> (3-5 years) or <strong>trading</strong> (days to weeks). Do not mix both in one position.</p>
+          </div>
+        </article>
+        <article class="step-item">
+          <span class="step-num">2</span>
+          <div>
+            <h3>Choose 5-10 Stocks</h3>
+            <p>Start with liquid large-cap names only. Avoid penny or low-volume stocks in the beginning.</p>
+          </div>
+        </article>
+        <article class="step-item">
+          <span class="step-num">3</span>
+          <div>
+            <h3>Use One Setup</h3>
+            <p>Begin with trend + pullback: price above 200DMA, buy near 20DMA support, exit if setup breaks.</p>
+          </div>
+        </article>
+        <article class="step-item">
+          <span class="step-num">4</span>
+          <div>
+            <h3>Risk First</h3>
+            <p>Risk only 1% of capital per trade. Decide stop-loss first, then position size.</p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="card concept-grid">
+      <article class="concept-card bullish">
+        <h2>🐂 Bullish Means</h2>
+        <p>Market expects prices to rise. Buyers are stronger than sellers.</p>
+        <ul>
+          <li>Higher highs and higher lows</li>
+          <li>Price above key moving averages</li>
+          <li>Volume supports breakout moves</li>
+        </ul>
+      </article>
+      <article class="concept-card bearish">
+        <h2>🐻 Bearish Means</h2>
+        <p>Market expects prices to fall. Sellers dominate momentum.</p>
+        <ul>
+          <li>Lower highs and lower lows</li>
+          <li>Price below major moving averages</li>
+          <li>Weak rebounds with heavy selling</li>
+        </ul>
+      </article>
+    </section>
+
+    <section class="card checklist-card">
+      <h2>Pre-Trade Checklist</h2>
+      <div class="checklist-grid">
+        <label><input type="checkbox" class="precheck" /> Trend is clear (above/below 200DMA)</label>
+        <label><input type="checkbox" class="precheck" /> Entry level is defined</label>
+        <label><input type="checkbox" class="precheck" /> Stop-loss is defined</label>
+        <label><input type="checkbox" class="precheck" /> Risk is under 1% of capital</label>
+        <label><input type="checkbox" class="precheck" /> Risk:Reward is at least 1:2</label>
+      </div>
+      <p class="checklist-status" id="checklist-status">0/5 complete. Finish your checklist before entering a trade.</p>
+    </section>
+
+    <section class="card simulator-card" id="simulator-section">
+      <h2>Interactive Sentiment Simulator</h2>
+      <p class="muted">Move the sliders to see what each metric means and how you would use it in a real trade.</p>
+      <label class="market-context-label">Market context
+        <select id="market-context">
+          <option value="india">India (NSE/BSE)</option>
+          <option value="us">US (NYSE/NASDAQ)</option>
+        </select>
+      </label>
+      <div class="preset-row">
+        <label class="market-context-label">Indian Beginner Presets
+          <select id="india-preset">
+            <option value="">Select preset...</option>
+            <option value="nifty_pullback">Nifty 50 Pullback Entry</option>
+            <option value="banknifty_breakout">BankNifty Breakout Day</option>
+            <option value="defensive_sip">Defensive Swing/SIP Blend</option>
+            <option value="high_beta_momentum">High Beta Momentum (Advanced)</option>
+          </select>
+        </label>
+        <button type="button" id="apply-preset-btn" class="preset-apply-btn">Apply Preset</button>
+      </div>
+      <p class="preset-note" id="preset-note">Choose a preset to auto-fill values for common Indian setups.</p>
+      <div class="simulator-layout">
+        <div class="sim-controls">
+          <label>Price change (%) <span id="price-change-val">2</span>
+            <input type="range" id="price-change" min="-10" max="10" value="2" step="0.5" />
+          </label>
+          <label>50DMA vs 200DMA (%) <span id="ma-spread-val">3</span>
+            <input type="range" id="ma-spread" min="-15" max="15" value="3" step="0.5" />
+          </label>
+          <label>RSI <span id="rsi-val">56</span>
+            <input type="range" id="rsi" min="0" max="100" value="56" />
+          </label>
+          <label>Volume vs avg (%) <span id="volume-val">115</span>
+            <input type="range" id="volume" min="50" max="200" value="115" />
+          </label>
+          <label>Volatility (ATR style) <span id="volatility-val">24</span>
+            <input type="range" id="volatility" min="10" max="60" value="24" />
+          </label>
+        </div>
+
+        <div class="sim-result" id="sim-result">
+          <p class="result-label" id="market-bias">Bias: Bullish</p>
+          <div class="bias-meter">
+            <div class="bias-fill" id="bias-fill"></div>
+          </div>
+          <p class="result-score">Bull Score: <strong id="bull-score">68</strong>/100</p>
+          <p class="result-note" id="bias-note">Price trend and moving averages are supportive, while volatility is still manageable.</p>
+        </div>
+      </div>
+      <p class="market-example" id="market-example">Example (India): If RELIANCE.NS is above 200DMA with RSI 55-60 and rising volume, bias is usually constructive.</p>
+    </section>
+
+    <section class="card practical-card" id="practical-section">
+      <h2>How to Read These Terms Practically</h2>
+      <div class="practical-grid">
+        <article class="practical-item">
+          <h3>Price Change (%)</h3>
+          <p><strong>Meaning:</strong> Recent move up/down in price.</p>
+          <p><strong>Use:</strong> Positive = momentum, but avoid chasing very extended moves.</p>
+          <p class="live-line" id="practical-price">Now: Mild positive move.</p>
+        </article>
+        <article class="practical-item">
+          <h3>50DMA vs 200DMA (%)</h3>
+          <p><strong>Meaning:</strong> Medium trend vs long trend.</p>
+          <p><strong>Use:</strong> Above zero = stronger trend. Below zero = caution.</p>
+          <p class="live-line" id="practical-ma">Now: Trend is supportive.</p>
+        </article>
+        <article class="practical-item">
+          <h3>RSI</h3>
+          <p><strong>Meaning:</strong> Momentum speed (0 to 100).</p>
+          <p><strong>Use:</strong> 45-65 is healthy. 70+ can be overheated. Under 35 is weak.</p>
+          <p class="live-line" id="practical-rsi">Now: Neutral-strength zone.</p>
+        </article>
+        <article class="practical-item">
+          <h3>Volume vs Avg (%)</h3>
+          <p><strong>Meaning:</strong> Trading activity vs normal.</p>
+          <p><strong>Use:</strong> Breakouts need strong volume (>110%).</p>
+          <p class="live-line" id="practical-volume">Now: Participation is above average.</p>
+        </article>
+        <article class="practical-item">
+          <h3>Volatility (ATR style)</h3>
+          <p><strong>Meaning:</strong> Typical swing size/risk.</p>
+          <p><strong>Use:</strong> Higher ATR = wider stops, smaller position size.</p>
+          <p class="live-line" id="practical-volatility">Now: Risk is manageable.</p>
+        </article>
+        <article class="practical-item highlight">
+          <h3>Beginner Action Rule</h3>
+          <p id="practical-action">Action now: Trend okay, momentum okay. Consider only small position with strict stop-loss.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="card risk-card" id="risk-section">
+      <h2>Position Size Calculator (Simple)</h2>
+      <p class="muted">Use this before every trade so one loss does not damage your account.</p>
+      <div class="risk-layout">
+        <label>Total capital (₹/$)
+          <input type="number" id="capital" min="1000" step="1000" value="100000" />
+        </label>
+        <label>Risk per trade (%)
+          <input type="number" id="risk-pct" min="0.2" max="2" step="0.1" value="1" />
+        </label>
+        <label>Entry price
+          <input type="number" id="entry-price" min="1" step="0.1" value="2500" />
+        </label>
+        <label>Stop-loss price
+          <input type="number" id="stop-price" min="1" step="0.1" value="2450" />
+        </label>
+      </div>
+      <div class="risk-result" id="risk-result">
+        <p><strong>Max loss allowed:</strong> <span id="max-loss">1000.00</span></p>
+        <p><strong>Risk per share:</strong> <span id="risk-per-share">50.00</span></p>
+        <p><strong>Suggested quantity:</strong> <span id="position-size">20</span> shares</p>
+      </div>
+    </section>
+
+    <section class="card advanced-card" id="advanced-section">
+      <h2>Advanced Confluence Framework</h2>
+      <p class="muted">Do not act on one indicator alone. Use confluence scoring before entry.</p>
+      <div class="advanced-grid">
+        <article class="advanced-item">
+          <h3>4-Factor Entry Rule</h3>
+          <ul>
+            <li>Trend: 50DMA above 200DMA</li>
+            <li>Momentum: RSI 45-65 preferred</li>
+            <li>Participation: Volume &gt; 110% on setup day</li>
+            <li>Risk: Position size capped by 1% loss rule</li>
+          </ul>
+        </article>
+        <article class="advanced-item">
+          <h3>Current Confluence Status</h3>
+          <p id="confluence-score">Confluence score: 3/4 (Good setup quality)</p>
+          <p id="confluence-advice">Advice: You may consider phased entry; keep stop-loss below recent structure.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="card trade-plan-card" id="tradeplan-section">
+      <div class="trade-plan-head">
+        <h2>Generate My Trade Plan</h2>
+        <button type="button" id="generate-plan-btn" class="preset-apply-btn">Generate Plan</button>
+      </div>
+      <p class="muted">Creates an execution-ready plan from your current values.</p>
+      <div class="trade-plan-output" id="trade-plan-output">
+        <p>Plan not generated yet. Adjust values and click <strong>Generate Plan</strong>.</p>
+      </div>
+      <div class="trade-plan-actions">
+        <button type="button" id="copy-plan-btn" class="preset-apply-btn">Copy Plan</button>
+      </div>
+    </section>
+
+    <section class="card quiz-card" id="quiz-section">
+      <h2>1-Minute Check</h2>
+      <p class="muted">If price is below 200DMA, RSI is 35, and volume spikes on down days, what's the likely short-term bias?</p>
+      <div class="quiz-options">
+        <button type="button" class="quiz-btn" data-answer="bull">Bullish</button>
+        <button type="button" class="quiz-btn" data-answer="bear">Bearish</button>
+        <button type="button" class="quiz-btn" data-answer="neutral">Neutral</button>
+      </div>
+      <p class="quiz-feedback" id="quiz-feedback"></p>
+    </section>
+  </main>
+
+  <div class="tour-backdrop" id="tour-backdrop" style="display:none;">
+    <div class="tour-modal" role="dialog" aria-modal="true" aria-labelledby="tour-title">
+      <p class="tour-progress" id="tour-progress">Step 1/6</p>
+      <h3 id="tour-title">Welcome</h3>
+      <p id="tour-description">This tour will guide you through each section and what to do.</p>
+      <div class="tour-actions">
+        <button type="button" id="tour-prev-btn" class="tour-btn">Previous</button>
+        <button type="button" id="tour-next-btn" class="tour-btn">Next</button>
+        <button type="button" id="tour-close-btn" class="tour-btn">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <footer class="app-footer">
+    <p>🇺🇸 + 🇮🇳 AI Stock Advisor | Analysis, AI Chat, Document Insights, Beginner Learning</p>
+    <p class="disclaimer">© <span id="year"></span> AI Stock Advisor. Educational content only. Not financial advice. Always do your own research.</p>
+  </footer>
+
+  <script>
+    const themeToggle = document.getElementById('theme-toggle');
+    const themeIcon = document.querySelector('.theme-icon');
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark') {
+      document.body.classList.add('dark-theme');
+      const img = themeIcon;
+      const fallback = document.querySelector('.theme-icon-fallback');
+      if (img) {
+        img.src = '/images/icons8-sun-96.png';
+        img.onerror = () => { img.style.display='none'; fallback.style.display='inline'; fallback.textContent='☀️'; };
+      }
+      if (fallback && fallback.style.display !== 'none') fallback.textContent = '☀️';
+      themeToggle.title = 'Toggle light mode';
+    }
+
+    themeToggle?.addEventListener('click', () => {
+      document.body.classList.toggle('dark-theme');
+      const isDark = document.body.classList.contains('dark-theme');
+      const img = themeIcon;
+      const fallback = document.querySelector('.theme-icon-fallback');
+      if (img) {
+        img.src = isDark ? '/images/icons8-sun-96.png' : '/images/icons8-crescent-moon-96.png';
+        img.onerror = () => { img.style.display='none'; fallback.style.display='inline'; fallback.textContent=isDark?'☀️':'🌙'; };
+      }
+      if (fallback && fallback.style.display !== 'none') fallback.textContent = isDark ? '☀️' : '🌙';
+      themeToggle.title = isDark ? 'Toggle light mode' : 'Toggle dark mode';
+      localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    });
+
+    document.getElementById('hamburger')?.addEventListener('click', function() {
+      this.classList.toggle('active');
+      document.querySelector('.nav-links').classList.toggle('active');
+    });
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>

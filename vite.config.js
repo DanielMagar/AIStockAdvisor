@@ -8,7 +8,8 @@ export default defineConfig({
       input: {
         main: 'index.html',
         stocks: 'stocks.html',
-        chat: 'chat.html'
+        chat: 'chat.html',
+        beginners: 'beginners.html'
       }
     }
   }
