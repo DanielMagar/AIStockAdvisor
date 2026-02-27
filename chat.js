@@ -1955,6 +1955,8 @@ document.querySelectorAll('.prompt-chip').forEach((chip) => {
     const chatToolsBody = document.getElementById('chat-tools-body');
     const chatShell = document.querySelector('.chat-shell');
     const guideRailToggle = document.getElementById('guide-rail-toggle');
+    const chatMobileGuideToggle = document.getElementById('chat-mobile-guide-toggle');
+    const chatMobileNewsToggle = document.getElementById('chat-mobile-news-toggle');
     const aiFontDecreaseBtn = document.getElementById('ai-font-decrease-btn');
     const aiFontDefaultBtn = document.getElementById('ai-font-default-btn');
     const aiFontIncreaseBtn = document.getElementById('ai-font-increase-btn');
@@ -2006,6 +2008,21 @@ document.querySelectorAll('.prompt-chip').forEach((chip) => {
         guideRailToggle.textContent = open && isDesktop ? 'Guide: On' : 'Guide: Off';
         if (persist) {
             localStorage.setItem(CHAT_GUIDE_OPEN_KEY, open ? 'on' : 'off');
+        }
+    };
+
+    const setMobileRailPanels = (mode) => {
+        if (!chatShell) return;
+        chatShell.classList.toggle('show-mobile-guide', mode === 'guide');
+        chatShell.classList.toggle('show-mobile-news', mode === 'news');
+        chatMobileGuideToggle?.classList.toggle('is-active', mode === 'guide');
+        chatMobileNewsToggle?.classList.toggle('is-active', mode === 'news');
+
+        if (!window.matchMedia('(max-width: 1024px)').matches) return;
+        if (mode === 'guide') {
+            document.querySelector('.chat-left-panel')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } else if (mode === 'news') {
+            document.querySelector('.chat-side-panel')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
     };
 
@@ -2101,10 +2118,23 @@ document.querySelectorAll('.prompt-chip').forEach((chip) => {
         setGuideRailOpen(!isOpen);
     });
 
+    chatMobileGuideToggle?.addEventListener('click', () => {
+        const isOpen = chatShell?.classList.contains('show-mobile-guide');
+        setMobileRailPanels(isOpen ? 'none' : 'guide');
+    });
+
+    chatMobileNewsToggle?.addEventListener('click', () => {
+        const isOpen = chatShell?.classList.contains('show-mobile-news');
+        setMobileRailPanels(isOpen ? 'none' : 'news');
+    });
+
     window.addEventListener('resize', () => {
         const saved = localStorage.getItem(CHAT_GUIDE_OPEN_KEY);
         const open = saved === null ? true : saved === 'on';
         setGuideRailOpen(open, false);
+        if (window.matchMedia('(min-width: 1025px)').matches) {
+            setMobileRailPanels('none');
+        }
     });
 
     const updateFontControlState = (size) => {

@@ -1136,6 +1136,10 @@ function initHomeNewsRegionDropdown() {
 function initHomeGuideRailToggle() {
     const workspace = document.querySelector('.analysis-workspace')
     const toggleBtn = document.getElementById('workspace-guide-toggle')
+    const panelHeader = document.querySelector('.panel-header')
+    const mobileStatsBtn = document.getElementById('mobile-stats-toggle')
+    const mobileGuideBtn = document.getElementById('mobile-guide-toggle')
+    const mobileNewsBtn = document.getElementById('mobile-news-toggle')
     if (!workspace || !toggleBtn) return
 
     const setGuideOpen = (open, persist = true) => {
@@ -1158,10 +1162,46 @@ function initHomeGuideRailToggle() {
         setGuideOpen(!isOpen)
     })
 
+    const setMobilePanels = (mode) => {
+        workspace.classList.toggle('show-mobile-guide', mode === 'guide')
+        workspace.classList.toggle('show-mobile-news', mode === 'news')
+        panelHeader?.classList.toggle('show-mobile-stats', mode === 'stats')
+        mobileStatsBtn?.classList.toggle('is-active', mode === 'stats')
+        mobileGuideBtn?.classList.toggle('is-active', mode === 'guide')
+        mobileNewsBtn?.classList.toggle('is-active', mode === 'news')
+
+        if (!window.matchMedia('(max-width: 1024px)').matches) return
+        if (mode === 'guide') {
+            document.querySelector('.analysis-left-panel')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        } else if (mode === 'news') {
+            document.querySelector('.analysis-news-panel')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        } else if (mode === 'stats') {
+            panelHeader?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        }
+    }
+
+    mobileStatsBtn?.addEventListener('click', () => {
+        const statsOpen = panelHeader?.classList.contains('show-mobile-stats')
+        setMobilePanels(statsOpen ? 'none' : 'stats')
+    })
+
+    mobileGuideBtn?.addEventListener('click', () => {
+        const guideOpen = workspace.classList.contains('show-mobile-guide')
+        setMobilePanels(guideOpen ? 'none' : 'guide')
+    })
+
+    mobileNewsBtn?.addEventListener('click', () => {
+        const newsOpen = workspace.classList.contains('show-mobile-news')
+        setMobilePanels(newsOpen ? 'none' : 'news')
+    })
+
     window.addEventListener('resize', () => {
         const saved = localStorage.getItem(HOME_GUIDE_OPEN_KEY)
         const open = saved === null ? true : saved === 'on'
         setGuideOpen(open, false)
+        if (window.matchMedia('(min-width: 1025px)').matches) {
+            setMobilePanels('none')
+        }
     })
 }
 
